@@ -1,9 +1,12 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+import '../widgets/chart.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({Key? key}) : super(key: key);
@@ -26,7 +29,7 @@ class _DashboardPageState extends State<DashboardPage> {
           children: [
             _SumarySection(),
             const SizedBox(height: 10),
-            const _ChartSection(
+            _ChartSection(
               title: "Evolution du pH",
               titleBox1: "Moyenne 1h",
               valueBox1: "6.9 pH",
@@ -34,7 +37,7 @@ class _DashboardPageState extends State<DashboardPage> {
               valueBox2: "7 pH",
             ),
             const SizedBox(height: 10),
-            const _ChartSection(
+            _ChartSection(
               title: "Température de l'eau",
               titleBox1: "Moyenne 1h",
               valueBox1: "22.5°",
@@ -42,7 +45,7 @@ class _DashboardPageState extends State<DashboardPage> {
               valueBox2: "18°",
             ),
             const SizedBox(height: 10),
-            const _ChartSection(
+            _ChartSection(
               title: "Température de l'air",
               titleBox1: "Moyenne 1h",
               valueBox1: "38°",
@@ -176,13 +179,15 @@ class _ChartSection extends StatelessWidget {
   final String titleBox2;
   final String valueBox2;
 
-  const _ChartSection({
+  _ChartSection({
     required this.title,
     required this.titleBox1,
     required this.valueBox1,
     required this.titleBox2,
     required this.valueBox2,
   });
+
+  final Random random = Random();
 
   @override
   Widget build(BuildContext context) {
@@ -193,7 +198,7 @@ class _ChartSection extends StatelessWidget {
           Container(
             margin: const EdgeInsets.fromLTRB(10, 10, 10, 30),
             padding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
-            height: 200,
+            height: 280,
             width: double.infinity,
             decoration: BoxDecoration(
               color: Colors.white,
@@ -232,6 +237,7 @@ class _ChartSection extends StatelessWidget {
                     ),
                   ],
                 ),
+                LineChartWidget(pricePoints, random.nextBool()),
               ],
             ),
           ),
