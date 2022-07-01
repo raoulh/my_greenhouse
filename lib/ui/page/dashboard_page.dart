@@ -217,55 +217,7 @@ class _ChartSection extends StatelessWidget {
                 ),
               ],
             ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      title,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey[800],
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        CupertinoButton(
-                          padding: const EdgeInsets.all(8),
-                          child: Icon(
-                            CupertinoIcons.zoom_out,
-                            color: Colors.grey[700],
-                            size: 25.0,
-                          ),
-                          onPressed: () => {},
-                        ),
-                        CupertinoButton(
-                          padding: const EdgeInsets.all(8),
-                          child: Icon(
-                            CupertinoIcons.zoom_in,
-                            color: Colors.grey[700],
-                            size: 25.0,
-                          ),
-                          onPressed: () => {},
-                        ),
-                        CupertinoButton(
-                          padding: const EdgeInsets.all(8),
-                          child: Icon(
-                            CupertinoIcons.ellipsis_circle,
-                            color: Colors.grey[700],
-                            size: 25.0,
-                          ),
-                          onPressed: () => {},
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-                const LineChartWidget(),
-              ],
-            ),
+            child: LineChartWidget(title: title),
           ),
           Positioned(
             bottom: 0,

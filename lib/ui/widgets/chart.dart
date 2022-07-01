@@ -1,11 +1,14 @@
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:my_greenhouse/models/models.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 class LineChartWidget extends StatefulWidget {
-  const LineChartWidget({Key? key}) : super(key: key);
+  final String title;
+
+  const LineChartWidget({Key? key, required this.title}) : super(key: key);
 
   @override
   State<LineChartWidget> createState() => _LineChartState();
@@ -66,11 +69,17 @@ class _LineChartState extends State<LineChartWidget> {
   }
 
   void zoomIn() {
-    setState(() {});
+    setState(() {
+      _minX += _zoomStep;
+      _maxX -= _zoomStep;
+    });
   }
 
   void zoomOut() {
-    setState(() {});
+    setState(() {
+      _minX -= _zoomStep;
+      _maxX += _zoomStep;
+    });
   }
 
   LineChartBarData _lineBarData() {
@@ -141,119 +150,168 @@ class _LineChartState extends State<LineChartWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: 2,
-      child: GestureDetector(
-        onDoubleTap: () {
-          setState(() {
-            _minX = _zoomMin;
-            _maxX = _zoomMax;
-          });
-        },
-        child: LineChart(
-          LineChartData(
-            lineTouchData: LineTouchData(
-                enabled: true,
-                touchCallback:
-                    (FlTouchEvent event, LineTouchResponse? touchResponse) {
-                  // TODO : Utilize touch event here to perform any operation
-                },
-                touchTooltipData: LineTouchTooltipData(
-                  tooltipBgColor: Colors.green[900],
-                  tooltipRoundedRadius: 10.0,
-                  showOnTopOfTheChartBoxArea: true,
-                  fitInsideHorizontally: true,
-                  tooltipMargin: 0,
-                  getTooltipItems: (touchedSpots) {
-                    return touchedSpots.map(
-                      (LineBarSpot touchedSpot) {
-                        TextStyle textStyle = GoogleFonts.montserrat(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
-                        );
-
-                        //format datetime
-                        var dt = DateTime.fromMillisecondsSinceEpoch(
-                            touchedSpot.x.toInt());
-                        String fmt =
-                            '${DateFormat(DateFormat.ABBR_MONTH_DAY, Intl.getCurrentLocale()).format(dt)} ${DateFormat(DateFormat.HOUR24_MINUTE, Intl.getCurrentLocale()).format(dt)}';
-
-                        return LineTooltipItem(
-                          '${touchedSpot.y.toString()} \n',
-                          textStyle,
-                          children: [
-                            TextSpan(
-                              text: fmt,
-                              style: GoogleFonts.montserrat(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w300,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ).toList();
-                  },
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              widget.title,
+              style: GoogleFonts.montserrat(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[800],
+              ),
+            ),
+            Row(
+              children: [
+                CupertinoButton(
+                  padding: const EdgeInsets.all(8),
+                  child: Icon(
+                    CupertinoIcons.zoom_out,
+                    color: Colors.grey[700],
+                    size: 25.0,
+                  ),
+                  onPressed: () => zoomOut(),
                 ),
-                getTouchedSpotIndicator:
-                    (LineChartBarData barData, List<int> indicators) {
-                  return indicators.map(
-                    (int index) {
-                      final line = FlLine(
-                        color: Colors.grey,
-                        strokeWidth: 1,
-                        dashArray: [4, 2],
-                      );
-                      return TouchedSpotIndicatorData(
-                        line,
-                        FlDotData(show: true),
-                      );
+                CupertinoButton(
+                  padding: const EdgeInsets.all(8),
+                  child: Icon(
+                    CupertinoIcons.zoom_in,
+                    color: Colors.grey[700],
+                    size: 25.0,
+                  ),
+                  onPressed: () => zoomIn(),
+                ),
+                CupertinoButton(
+                  padding: const EdgeInsets.all(8),
+                  child: Icon(
+                    CupertinoIcons.ellipsis_circle,
+                    color: Colors.grey[700],
+                    size: 25.0,
+                  ),
+                  onPressed: () => {},
+                ),
+              ],
+            )
+          ],
+        ),
+        AspectRatio(
+          aspectRatio: 2,
+          child: GestureDetector(
+            onDoubleTap: () {
+              setState(() {
+                _minX = _zoomMin;
+                _maxX = _zoomMax;
+              });
+            },
+            child: LineChart(
+              LineChartData(
+                lineTouchData: LineTouchData(
+                    enabled: true,
+                    touchCallback:
+                        (FlTouchEvent event, LineTouchResponse? touchResponse) {
+                      // TODO : Utilize touch event here to perform any operation
                     },
-                  ).toList();
-                },
-                getTouchLineEnd: (_, __) => double.infinity),
-            lineBarsData: [_lineBarData()],
-            minY: _minY,
-            minX: _minX,
-            maxY: _maxY,
-            maxX: _maxX,
-            borderData: FlBorderData(
-              border: const Border(
-                bottom: BorderSide(color: Colors.black26),
-                left: BorderSide(color: Colors.black26),
-              ),
-            ),
-            gridData: FlGridData(
-              show: true,
-              drawHorizontalLine: true,
-              drawVerticalLine: true,
-              getDrawingVerticalLine: _drawingVerticalLine,
-              getDrawingHorizontalLine: _drawingHorizontalLine,
-            ),
-            titlesData: FlTitlesData(
-              topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              rightTitles:
-                  AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              bottomTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  reservedSize: 44,
-                  getTitlesWidget: _bottomTitleWidgets,
+                    touchTooltipData: LineTouchTooltipData(
+                      tooltipBgColor: Colors.green[900],
+                      tooltipRoundedRadius: 10.0,
+                      showOnTopOfTheChartBoxArea: true,
+                      fitInsideHorizontally: true,
+                      tooltipMargin: 0,
+                      getTooltipItems: (touchedSpots) {
+                        return touchedSpots.map(
+                          (LineBarSpot touchedSpot) {
+                            TextStyle textStyle = GoogleFonts.montserrat(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                            );
+
+                            //format datetime
+                            var dt = DateTime.fromMillisecondsSinceEpoch(
+                                touchedSpot.x.toInt());
+                            String fmt =
+                                '${DateFormat(DateFormat.ABBR_MONTH_DAY, Intl.getCurrentLocale()).format(dt)} ${DateFormat(DateFormat.HOUR24_MINUTE, Intl.getCurrentLocale()).format(dt)}';
+
+                            return LineTooltipItem(
+                              '${touchedSpot.y.toString()} \n',
+                              textStyle,
+                              children: [
+                                TextSpan(
+                                  text: fmt,
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w300,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ).toList();
+                      },
+                    ),
+                    getTouchedSpotIndicator:
+                        (LineChartBarData barData, List<int> indicators) {
+                      return indicators.map(
+                        (int index) {
+                          final line = FlLine(
+                            color: Colors.grey,
+                            strokeWidth: 1,
+                            dashArray: [4, 2],
+                          );
+                          return TouchedSpotIndicatorData(
+                            line,
+                            FlDotData(show: true),
+                          );
+                        },
+                      ).toList();
+                    },
+                    getTouchLineEnd: (_, __) => double.infinity),
+                lineBarsData: [_lineBarData()],
+                minY: _minY,
+                minX: _minX,
+                maxY: _maxY,
+                maxX: _maxX,
+                borderData: FlBorderData(
+                  border: const Border(
+                    bottom: BorderSide(color: Colors.black26),
+                    left: BorderSide(color: Colors.black26),
+                  ),
                 ),
-              ),
-              leftTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  reservedSize: 28,
-                  getTitlesWidget: _leftTitleWidgets,
+                gridData: FlGridData(
+                  show: true,
+                  drawHorizontalLine: true,
+                  drawVerticalLine: true,
+                  getDrawingVerticalLine: _drawingVerticalLine,
+                  getDrawingHorizontalLine: _drawingHorizontalLine,
+                ),
+                titlesData: FlTitlesData(
+                  topTitles:
+                      AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles:
+                      AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 44,
+                      getTitlesWidget: _bottomTitleWidgets,
+                    ),
+                  ),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 28,
+                      getTitlesWidget: _leftTitleWidgets,
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
         ),
-      ),
+      ],
     );
   }
 }
