@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -69,14 +70,16 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       elevation: 0,
       scrolledUnderElevation: 4,
-      leading: IconButton(
-        icon: const Icon(
-          Icons.menu,
-          color: Color(0xff2ea636),
-          size: 20,
+      actions: [
+        CupertinoButton(
+          child: const Icon(
+            CupertinoIcons.gear,
+            color: Color(0xff2ea636),
+            size: 20,
+          ),
+          onPressed: () => {},
         ),
-        onPressed: () => {},
-      ),
+      ],
       centerTitle: true,
       title: Text(
         'Familly22 - Original',
@@ -197,8 +200,8 @@ class _ChartSection extends StatelessWidget {
         children: [
           Container(
             margin: const EdgeInsets.fromLTRB(10, 10, 10, 30),
-            padding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
-            height: 280,
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+            height: 290,
             width: double.infinity,
             decoration: BoxDecoration(
               color: Colors.white,
@@ -227,17 +230,40 @@ class _ChartSection extends StatelessWidget {
                         color: Colors.grey[800],
                       ),
                     ),
-                    IconButton(
-                      icon: SvgPicture.asset(
-                        "assets/dots_three_circle_icon.svg",
-                        color: Colors.grey[800],
-                        width: 20,
-                      ),
-                      onPressed: () => {},
-                    ),
+                    Row(
+                      children: [
+                        CupertinoButton(
+                          padding: const EdgeInsets.all(8),
+                          child: Icon(
+                            CupertinoIcons.zoom_out,
+                            color: Colors.grey[700],
+                            size: 25.0,
+                          ),
+                          onPressed: () => {},
+                        ),
+                        CupertinoButton(
+                          padding: const EdgeInsets.all(8),
+                          child: Icon(
+                            CupertinoIcons.zoom_in,
+                            color: Colors.grey[700],
+                            size: 25.0,
+                          ),
+                          onPressed: () => {},
+                        ),
+                        CupertinoButton(
+                          padding: const EdgeInsets.all(8),
+                          child: Icon(
+                            CupertinoIcons.ellipsis_circle,
+                            color: Colors.grey[700],
+                            size: 25.0,
+                          ),
+                          onPressed: () => {},
+                        ),
+                      ],
+                    )
                   ],
                 ),
-                LineChartWidget(pricePoints, random.nextBool()),
+                const LineChartWidget(),
               ],
             ),
           ),

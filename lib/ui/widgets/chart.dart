@@ -1,144 +1,259 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'dart:math';
-import 'package:collection/collection.dart';
+import 'package:my_greenhouse/models/models.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
-class PricePoint {
-  final double x;
-  final double y;
+class LineChartWidget extends StatefulWidget {
+  const LineChartWidget({Key? key}) : super(key: key);
 
-  PricePoint({required this.x, required this.y});
+  @override
+  State<LineChartWidget> createState() => _LineChartState();
 }
 
-List<PricePoint> get pricePoints {
-  final Random random = Random();
-  final randomNumbers = <double>[];
-  for (var i = 1; i <= 12; i++) {
-    randomNumbers.add(random.nextDouble());
+class _LineChartState extends State<LineChartWidget> {
+  double _minX = 0;
+  double _maxX = 0;
+  double _minY = 2;
+  double _maxY = 8;
+  final int _divider = 1;
+
+  double _zoomMin = 0, _zoomMax = 0;
+  double _zoomStep = 0;
+
+  List<FlSpot>? _values = const [];
+
+  final List<Color> _gradientColors = [
+    const Color(0xff008033),
+    const Color.fromARGB(61, 22, 160, 132),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _prepareDemoPHData();
   }
 
-  return randomNumbers
-      .mapIndexed(
-          (index, element) => PricePoint(x: index.toDouble(), y: element))
-      .toList();
-}
+  void _prepareDemoPHData() async {
+    final List<MeasValue>? data = await loadPHData();
 
-const _dashArray = [4, 2];
+    data?.sort((a, b) {
+      //sorting in ascending order
+      return a.captureDate.compareTo(b.captureDate);
+    });
 
-class LineChartWidget extends StatelessWidget {
-  final List<PricePoint> points;
-  final bool isPositiveChange;
+    double minY = 2;
+    double maxY = 8;
 
-  const LineChartWidget(this.points, this.isPositiveChange, {Key? key})
-      : super(key: key);
+    _values = data?.map((mvalue) {
+      if (minY > mvalue.value) minY = mvalue.value;
+      if (maxY < mvalue.value) maxY = mvalue.value;
+      return FlSpot(
+        mvalue.captureDate.millisecondsSinceEpoch.toDouble(),
+        mvalue.value,
+      );
+    }).toList();
+
+    _minX = _values!.first.x;
+    _maxX = _values!.last.x;
+    _minY = (minY / _divider).floorToDouble() * _divider;
+    _maxY = (maxY / _divider).ceilToDouble() * _divider;
+    _zoomMin = _minX;
+    _zoomMax = _maxX;
+    _zoomStep = (_zoomMax - _zoomMin) / 12;
+
+    setState(() {});
+  }
+
+  void zoomIn() {
+    setState(() {});
+  }
+
+  void zoomOut() {
+    setState(() {});
+  }
+
+  LineChartBarData _lineBarData() {
+    return LineChartBarData(
+      spots: _values,
+      isCurved: false,
+      color: const Color.fromARGB(255, 0, 114, 46),
+      barWidth: 2,
+      isStrokeCapRound: true,
+      dotData: FlDotData(show: false),
+      belowBarData: BarAreaData(
+        show: true,
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: _gradientColors,
+          stops: const [0, 1],
+        ),
+      ),
+    );
+  }
+
+  Widget _leftTitleWidgets(double value, TitleMeta meta) {
+    TextStyle style = GoogleFonts.montserrat(
+      fontSize: 12,
+      fontWeight: FontWeight.w200,
+      color: Colors.black,
+    );
+    return SideTitleWidget(
+      axisSide: meta.axisSide,
+      space: 6,
+      child: Text(value.toString(), style: style, textAlign: TextAlign.center),
+    );
+  }
+
+  Widget _bottomTitleWidgets(double value, TitleMeta meta) {
+    final style = GoogleFonts.montserrat(
+      fontSize: 10,
+      fontWeight: FontWeight.w200,
+      color: Colors.black,
+    );
+
+    var dt = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+    String fmt = DateFormat(DateFormat.ABBR_MONTH_DAY, Intl.getCurrentLocale())
+        .format(dt);
+
+    return SideTitleWidget(
+      angle: 55,
+      space: 12,
+      axisSide: meta.axisSide,
+      child: Text(fmt, style: style),
+    );
+  }
+
+  FlLine _drawingVerticalLine(double value) {
+    return FlLine(
+      color: Colors.grey[300],
+      strokeWidth: 0.4,
+    );
+  }
+
+  FlLine _drawingHorizontalLine(double value) {
+    return FlLine(
+      color: Colors.grey[600],
+      strokeWidth: 0.4,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final minY = points.map((point) => point.y).reduce(min);
-    final maxY = points.map((point) => point.y).reduce(max);
-
     return AspectRatio(
       aspectRatio: 2,
-      child: LineChart(
-        LineChartData(
-          lineTouchData: LineTouchData(
-              enabled: true,
-              touchCallback:
-                  (FlTouchEvent event, LineTouchResponse? touchResponse) {
-                // TODO : Utilize touch event here to perform any operation
-              },
-              touchTooltipData: LineTouchTooltipData(
-                tooltipBgColor: Colors.blue,
-                tooltipRoundedRadius: 20.0,
-                showOnTopOfTheChartBoxArea: true,
-                fitInsideHorizontally: true,
-                tooltipMargin: 0,
-                getTooltipItems: (touchedSpots) {
-                  return touchedSpots.map(
-                    (LineBarSpot touchedSpot) {
-                      const textStyle = TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+      child: GestureDetector(
+        onDoubleTap: () {
+          setState(() {
+            _minX = _zoomMin;
+            _maxX = _zoomMax;
+          });
+        },
+        child: LineChart(
+          LineChartData(
+            lineTouchData: LineTouchData(
+                enabled: true,
+                touchCallback:
+                    (FlTouchEvent event, LineTouchResponse? touchResponse) {
+                  // TODO : Utilize touch event here to perform any operation
+                },
+                touchTooltipData: LineTouchTooltipData(
+                  tooltipBgColor: Colors.green[900],
+                  tooltipRoundedRadius: 10.0,
+                  showOnTopOfTheChartBoxArea: true,
+                  fitInsideHorizontally: true,
+                  tooltipMargin: 0,
+                  getTooltipItems: (touchedSpots) {
+                    return touchedSpots.map(
+                      (LineBarSpot touchedSpot) {
+                        TextStyle textStyle = GoogleFonts.montserrat(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        );
+
+                        //format datetime
+                        var dt = DateTime.fromMillisecondsSinceEpoch(
+                            touchedSpot.x.toInt());
+                        String fmt =
+                            '${DateFormat(DateFormat.ABBR_MONTH_DAY, Intl.getCurrentLocale()).format(dt)} ${DateFormat(DateFormat.HOUR24_MINUTE, Intl.getCurrentLocale()).format(dt)}';
+
+                        return LineTooltipItem(
+                          '${touchedSpot.y.toString()} \n',
+                          textStyle,
+                          children: [
+                            TextSpan(
+                              text: fmt,
+                              style: GoogleFonts.montserrat(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w300,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ).toList();
+                  },
+                ),
+                getTouchedSpotIndicator:
+                    (LineChartBarData barData, List<int> indicators) {
+                  return indicators.map(
+                    (int index) {
+                      final line = FlLine(
+                        color: Colors.grey,
+                        strokeWidth: 1,
+                        dashArray: [4, 2],
                       );
-                      return LineTooltipItem(
-                        points[touchedSpot.spotIndex].y.toInt().toString(),
-                        textStyle,
+                      return TouchedSpotIndicatorData(
+                        line,
+                        FlDotData(show: true),
                       );
                     },
                   ).toList();
                 },
-              ),
-              getTouchedSpotIndicator:
-                  (LineChartBarData barData, List<int> indicators) {
-                return indicators.map(
-                  (int index) {
-                    final line = FlLine(
-                        color: Colors.grey,
-                        strokeWidth: 1,
-                        dashArray: _dashArray);
-                    return TouchedSpotIndicatorData(
-                      line,
-                      FlDotData(show: false),
-                    );
-                  },
-                ).toList();
-              },
-              getTouchLineEnd: (_, __) => double.infinity),
-          lineBarsData: [
-            LineChartBarData(
-              spots: points.map((point) => FlSpot(point.x, point.y)).toList(),
-              isCurved: false,
-              color: isPositiveChange ? Colors.green : Colors.red,
-              dotData: FlDotData(
-                show: false,
+                getTouchLineEnd: (_, __) => double.infinity),
+            lineBarsData: [_lineBarData()],
+            minY: _minY,
+            minX: _minX,
+            maxY: _maxY,
+            maxX: _maxX,
+            borderData: FlBorderData(
+              border: const Border(
+                bottom: BorderSide(color: Colors.black26),
+                left: BorderSide(color: Colors.black26),
               ),
             ),
-          ],
-          minY: minY,
-          minX: 0,
-          maxY: maxY,
-          borderData: FlBorderData(
-              border: const Border(bottom: BorderSide(), left: BorderSide())),
-          gridData: FlGridData(show: false),
-          // titlesData: FlTitlesData(
-          //   bottomTitles: _bottomTitles,
-          //   leftTitles: SideTitles(showTitles: false),
-          //   topTitles: SideTitles(showTitles: false),
-          //   rightTitles: SideTitles(showTitles: false),
-          // ),
+            gridData: FlGridData(
+              show: true,
+              drawHorizontalLine: true,
+              drawVerticalLine: true,
+              getDrawingVerticalLine: _drawingVerticalLine,
+              getDrawingHorizontalLine: _drawingHorizontalLine,
+            ),
+            titlesData: FlTitlesData(
+              topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              rightTitles:
+                  AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 44,
+                  getTitlesWidget: _bottomTitleWidgets,
+                ),
+              ),
+              leftTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 28,
+                  getTitlesWidget: _leftTitleWidgets,
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );
   }
 }
-/*
-SideTitles get _bottomTitles => SideTitles(
-      showTitles: true,
-      reservedSize: 22,
-      margin: 10,
-      interval: 1,
-      getTextStyles: (context, value) => const TextStyle(
-        color: Colors.blueGrey,
-        fontWeight: FontWeight.bold,
-        fontSize: 16,
-      ),
-      getTitles: (value) {
-        switch (value.toInt()) {
-          case 1:
-            return 'Jan';
-          case 3:
-            return 'Mar';
-          case 5:
-            return 'May';
-          case 7:
-            return 'Jul';
-          case 9:
-            return 'Sep';
-          case 11:
-            return 'Nov';
-        }
-        return '';
-      },
-    );
-*/
