@@ -1,12 +1,15 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
+import '../page/modal_with_navigator.dart';
+import '../page/modal_fit.dart';
+
+import '../widgets/appbar.dart';
 import '../widgets/chart.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -20,7 +23,10 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _AppBar(),
+      appBar: const MainAppBar(
+        title: "Family22 - Original",
+        showSettings: true,
+      ),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         physics: Platform.isIOS
@@ -36,6 +42,21 @@ class _DashboardPageState extends State<DashboardPage> {
               valueBox1: "6.9 pH",
               titleBox2: "Moyenne 24h",
               valueBox2: "7 pH",
+              onMorePressed: () {
+                WidgetBuilder builder;
+                if (Platform.isIOS) {
+                  builder = (context) => ModalWithNavigator();
+                } else {
+                  builder = (context) => ModalFit();
+                }
+
+                showCupertinoModalBottomSheet(
+                  expand: Platform.isIOS,
+                  context: context,
+                  backgroundColor: Colors.transparent,
+                  builder: builder,
+                );
+              },
             ),
             const SizedBox(height: 10),
             _ChartSection(
@@ -57,39 +78,6 @@ class _DashboardPageState extends State<DashboardPage> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _AppBar extends StatelessWidget implements PreferredSizeWidget {
-  @override
-  Size get preferredSize => const Size.fromHeight(60);
-
-  @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      elevation: 0,
-      scrolledUnderElevation: 4,
-      actions: [
-        CupertinoButton(
-          child: const Icon(
-            CupertinoIcons.gear,
-            color: Color(0xff2ea636),
-            size: 20,
-          ),
-          onPressed: () => {},
-        ),
-      ],
-      centerTitle: true,
-      title: Text(
-        'Familly22 - Original',
-        style: GoogleFonts.montserrat(
-          color: const Color(0xff2ea636),
-          fontSize: 22,
-          fontWeight: FontWeight.w200,
-        ),
-      ),
-      backgroundColor: Colors.white,
     );
   }
 }
@@ -181,6 +169,7 @@ class _ChartSection extends StatelessWidget {
   final String valueBox1;
   final String titleBox2;
   final String valueBox2;
+  final void Function()? onMorePressed;
 
   _ChartSection({
     required this.title,
@@ -188,6 +177,7 @@ class _ChartSection extends StatelessWidget {
     required this.valueBox1,
     required this.titleBox2,
     required this.valueBox2,
+    this.onMorePressed,
   });
 
   final Random random = Random();
@@ -217,7 +207,10 @@ class _ChartSection extends StatelessWidget {
                 ),
               ],
             ),
-            child: LineChartWidget(title: title),
+            child: LineChartWidget(
+              title: title,
+              onMorePressed: onMorePressed,
+            ),
           ),
           Positioned(
             bottom: 0,

@@ -7,8 +7,10 @@ import 'package:intl/intl.dart';
 
 class LineChartWidget extends StatefulWidget {
   final String title;
+  final void Function()? onMorePressed;
 
-  const LineChartWidget({Key? key, required this.title}) : super(key: key);
+  const LineChartWidget({Key? key, required this.title, this.onMorePressed})
+      : super(key: key);
 
   @override
   State<LineChartWidget> createState() => _LineChartState();
@@ -23,8 +25,15 @@ class _LineChartState extends State<LineChartWidget> {
 
   double _zoomMin = 0, _zoomMax = 0;
   double _zoomStep = 0;
+  double _prevMinX = 0;
+  double _prevMaxX = 0;
+
+  final GlobalKey _widgetKey = GlobalKey();
+  Size _widgetSize = const Size(0, 0);
 
   List<FlSpot>? _values = const [];
+
+  static const _maxZoomLevelMs = 6 * 60 * 60 * 1000; //max 6h zoom level
 
   final List<Color> _gradientColors = [
     const Color(0xff008033),
@@ -34,35 +43,58 @@ class _LineChartState extends State<LineChartWidget> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback(_getWidgetInfo);
     _prepareDemoPHData();
   }
 
+  void _getWidgetInfo(_) {
+    final RenderBox renderBox =
+        _widgetKey.currentContext?.findRenderObject() as RenderBox;
+    _widgetSize = renderBox.size;
+  }
+
   void _prepareDemoPHData() async {
-    final List<MeasValue>? data = await loadPHData();
+    List<MeasValue>? data = await loadPHDataDay();
 
     data?.sort((a, b) {
       //sorting in ascending order
       return a.captureDate.compareTo(b.captureDate);
     });
 
-    double minY = 2;
+    _zoomMin = data!.first.captureDate.millisecondsSinceEpoch.toDouble();
+    _zoomMax = data.last.captureDate.millisecondsSinceEpoch.toDouble();
+
+    //Load other ranges, and append them
+    List<MeasValue>? dataW = await loadPHDataWeek();
+    List<MeasValue>? dataM = await loadPHData3Months();
+
+    data = [...data, ...dataW!, ...dataM!];
+    data.sort((a, b) {
+      //sorting in ascending order
+      return a.captureDate.compareTo(b.captureDate);
+    });
+
+    double minY = 4;
     double maxY = 8;
 
-    _values = data?.map((mvalue) {
-      if (minY > mvalue.value) minY = mvalue.value;
-      if (maxY < mvalue.value) maxY = mvalue.value;
+    _values = data.map((mvalue) {
+      if (mvalue.value < minY) {
+        minY = mvalue.value - 0.5;
+      }
+      if (mvalue.value > maxY) {
+        maxY = mvalue.value + 0.5;
+      }
+
       return FlSpot(
         mvalue.captureDate.millisecondsSinceEpoch.toDouble(),
         mvalue.value,
       );
     }).toList();
 
-    _minX = _values!.first.x;
-    _maxX = _values!.last.x;
+    _minX = _zoomMin;
+    _maxX = _zoomMax;
     _minY = (minY / _divider).floorToDouble() * _divider;
     _maxY = (maxY / _divider).ceilToDouble() * _divider;
-    _zoomMin = _minX;
-    _zoomMax = _maxX;
     _zoomStep = (_zoomMax - _zoomMin) / 12;
 
     setState(() {});
@@ -70,13 +102,22 @@ class _LineChartState extends State<LineChartWidget> {
 
   void zoomIn() {
     setState(() {
+      _zoomStep = (_maxX - _minX) / 12;
+      var prevMinX = _minX;
+      var prevMaxX = _maxX;
       _minX += _zoomStep;
       _maxX -= _zoomStep;
+
+      if (_maxX - _minX < _maxZoomLevelMs) {
+        _minX = prevMinX;
+        _maxX = prevMaxX;
+      }
     });
   }
 
   void zoomOut() {
     setState(() {
+      _zoomStep = (_maxX - _minX) / 12;
       _minX -= _zoomStep;
       _maxX += _zoomStep;
     });
@@ -183,14 +224,17 @@ class _LineChartState extends State<LineChartWidget> {
                   ),
                   onPressed: () => zoomIn(),
                 ),
-                CupertinoButton(
-                  padding: const EdgeInsets.all(8),
-                  child: Icon(
-                    CupertinoIcons.ellipsis_circle,
-                    color: Colors.grey[700],
-                    size: 25.0,
+                Visibility(
+                  visible: widget.onMorePressed != null,
+                  child: CupertinoButton(
+                    padding: const EdgeInsets.all(8),
+                    onPressed: widget.onMorePressed,
+                    child: Icon(
+                      CupertinoIcons.ellipsis_circle,
+                      color: Colors.grey[700],
+                      size: 25.0,
+                    ),
                   ),
-                  onPressed: () => {},
                 ),
               ],
             )
@@ -203,6 +247,42 @@ class _LineChartState extends State<LineChartWidget> {
               setState(() {
                 _minX = _zoomMin;
                 _maxX = _zoomMax;
+              });
+            },
+            onScaleStart: (ScaleStartDetails details) {
+              _prevMinX = _minX;
+              _prevMaxX = _maxX;
+            },
+            onScaleUpdate: (ScaleUpdateDetails details) {
+              setState(() {
+                _minX = _prevMinX / details.horizontalScale;
+                _maxX = _prevMaxX / details.horizontalScale;
+
+                if (_minX < _zoomMin) {
+                  _minX = _zoomMin;
+                }
+                if (_maxX > _zoomMax) {
+                  _maxX = _zoomMax;
+                }
+              });
+            },
+            onHorizontalDragUpdate: (DragUpdateDetails details) {
+              setState(() {
+                double pixelWidth = _widgetSize.width -
+                    28; //28 is the left labels reserved size
+                double viewSize = _maxX - _minX;
+                double horizDelta =
+                    details.delta.dx.abs() * viewSize / pixelWidth;
+
+                if (details.primaryDelta != null) {
+                  if (details.primaryDelta!.isNegative) {
+                    _minX += horizDelta;
+                    _maxX += horizDelta;
+                  } else {
+                    _minX -= horizDelta;
+                    _maxX -= horizDelta;
+                  }
+                }
               });
             },
             child: LineChart(
@@ -269,6 +349,7 @@ class _LineChartState extends State<LineChartWidget> {
                       ).toList();
                     },
                     getTouchLineEnd: (_, __) => double.infinity),
+                clipData: FlClipData.all(),
                 lineBarsData: [_lineBarData()],
                 minY: _minY,
                 minX: _minX,
@@ -308,6 +389,7 @@ class _LineChartState extends State<LineChartWidget> {
                   ),
                 ),
               ),
+              key: _widgetKey,
             ),
           ),
         ),
