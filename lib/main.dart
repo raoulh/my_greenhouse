@@ -38,7 +38,7 @@ class _MyAppState extends State<MyApp> {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'MyFood App',
-        initialRoute: 'dashboard',
+        initialRoute: '/login',
         routes: appRoutes,
         localeResolutionCallback: (deviceLocale, supportedLocales) {
           Intl.defaultLocale = deviceLocale.toString();

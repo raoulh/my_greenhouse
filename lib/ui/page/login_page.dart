@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:progress_state_button/iconed_button.dart';
@@ -23,9 +22,11 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           stateLoginButton = ButtonState.loading;
           Future.delayed(const Duration(seconds: 1), () {
             setState(() {
-              stateLoginButton = Random.secure().nextBool()
-                  ? ButtonState.success
-                  : ButtonState.fail;
+              stateLoginButton = ButtonState.success;
+              Future.delayed(const Duration(milliseconds: 600), () {
+                Navigator.pushReplacementNamed(context, '/dashboard');
+                stateLoginButton = ButtonState.idle;
+              });
             });
           });
 
