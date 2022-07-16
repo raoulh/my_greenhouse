@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:my_greenhouse/services/auth_service.dart';
 import 'dart:ui';
 import 'package:progress_state_button/iconed_button.dart';
 import 'package:progress_state_button/progress_button.dart';
 import 'package:my_greenhouse/ui/widgets/logo.dart';
 import 'package:my_greenhouse/ui/background/background.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -15,33 +17,48 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   ButtonState stateLoginButton = ButtonState.idle;
 
-  void onPressedLoginButton() async {
-    setState(() {
-      switch (stateLoginButton) {
-        case ButtonState.idle:
+  final emailCtrl = TextEditingController();
+  final passCtrl = TextEditingController();
+
+  void onPressedLoginButton(BuildContext context) async {
+    final authService = Provider.of<AuthService>(context, listen: false);
+
+    switch (stateLoginButton) {
+      case ButtonState.idle:
+        setState(() {
           stateLoginButton = ButtonState.loading;
-          Future.delayed(const Duration(seconds: 1), () {
+        });
+
+        final auth = await authService.login(
+            emailCtrl.text.trim(), passCtrl.text.trim());
+
+        setState(() {
+          stateLoginButton = auth ? ButtonState.success : ButtonState.fail;
+        });
+
+        if (auth) {
+          Future.delayed(const Duration(milliseconds: 600), () {
+            Navigator.pushReplacementNamed(context, '/dashboard');
             setState(() {
-              stateLoginButton = ButtonState.success;
-              Future.delayed(const Duration(milliseconds: 600), () {
-                Navigator.pushReplacementNamed(context, '/dashboard');
-                stateLoginButton = ButtonState.idle;
-              });
+              stateLoginButton = ButtonState.idle;
             });
           });
+        } else {
+          Future.delayed(const Duration(milliseconds: 3000), () {
+            setState(() {
+              stateLoginButton = ButtonState.idle;
+            });
+          });
+        }
 
-          break;
-        case ButtonState.loading:
-          stateLoginButton = ButtonState.fail;
-          break;
-        case ButtonState.success:
-          stateLoginButton = ButtonState.idle;
-          break;
-        case ButtonState.fail:
-          stateLoginButton = ButtonState.idle;
-          break;
-      }
-    });
+        break;
+      case ButtonState.loading:
+        break;
+      case ButtonState.success:
+        break;
+      case ButtonState.fail:
+        break;
+    }
   }
 
   @override
@@ -72,9 +89,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           editComponent(Icons.account_circle_outlined,
-                              'Email...', false, true),
-                          editComponent(
-                              Icons.lock_outline, 'Password...', true, false),
+                              'Email...', false, true, emailCtrl),
+                          editComponent(Icons.lock_outline, 'Password...', true,
+                              false, passCtrl),
                           ProgressButton.icon(
                               iconedButtons: {
                                 ButtonState.idle: IconedButton(
@@ -98,7 +115,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                     ),
                                     color: Colors.green.shade400)
                               },
-                              onPressed: onPressedLoginButton,
+                              onPressed: () {
+                                onPressedLoginButton(context);
+                              },
                               state: stateLoginButton),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -124,8 +143,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget editComponent(
-      IconData icon, String hintText, bool isPassword, bool isEmail) {
+  Widget editComponent(IconData icon, String hintText, bool isPassword,
+      bool isEmail, TextEditingController controller) {
     Size size = MediaQuery.of(context).size;
     return ClipRRect(
       borderRadius: BorderRadius.circular(15),
@@ -144,6 +163,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             borderRadius: BorderRadius.circular(15),
           ),
           child: TextField(
+            controller: controller,
             style: TextStyle(color: Colors.white.withOpacity(.8)),
             cursorColor: Colors.white,
             obscureText: isPassword,
