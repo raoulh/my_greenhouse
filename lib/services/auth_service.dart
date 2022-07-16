@@ -7,7 +7,15 @@ import 'package:my_greenhouse/global/environment.dart';
 import 'package:my_greenhouse/models/models.dart';
 
 class AuthService with ChangeNotifier {
-  final _storage = const FlutterSecureStorage();
+  final _storage = const FlutterSecureStorage(
+    iOptions: IOSOptions(
+      accessibility: IOSAccessibility.first_unlock,
+      accountName: "greenhouse_storage",
+    ),
+    aOptions: AndroidOptions(
+      encryptedSharedPreferences: true,
+    ),
+  );
   bool _authenticated = false;
 
   bool get authenticated => _authenticated;
@@ -51,18 +59,20 @@ class AuthService with ChangeNotifier {
   }
 
   Future<bool> isLoggedIn() async {
-    final token = await _storage.read(key: 'token');
+    final token = await _getToken();
     var tokenAuth = 'Bearer ';
     if (token != null) {
       tokenAuth += token;
     } else {
       return false;
     }
+    final deviceId = await AppPrefs.getDeviceId();
 
     final url = '${Environment.apiUrl}/auth/check';
     final resp = await http.get(Uri.parse(url), headers: {
       'Content-Type': 'application/json',
-      'Authentication': tokenAuth,
+      'Authorization': tokenAuth,
+      'X-Device-Id': deviceId,
     });
 
     if (resp.statusCode == 200) {
@@ -77,7 +87,14 @@ class AuthService with ChangeNotifier {
     }
   }
 
+  Future<String?> _getToken() async {
+    final token = await _storage.read(key: 'token');
+    debugPrint("reading token: $token");
+    return token;
+  }
+
   Future _saveToken(String token) async {
+    debugPrint("saving token: $token");
     return await _storage.write(key: 'token', value: token);
   }
 

@@ -20,6 +20,6 @@ class LoginResponse {
         error: json["error"] ?? false,
         username: json["myfood_username"] ?? "",
         token: json["myfood_token"] ?? "",
-        tokenValid: json["myfood_token_valid"] ?? "",
+        tokenValid: json["myfood_token_valid"] ?? false,
       );
 }
