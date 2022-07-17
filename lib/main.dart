@@ -7,6 +7,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:my_greenhouse/routes/routes.dart';
 import 'package:my_greenhouse/services/auth_service.dart';
+import 'package:my_greenhouse/services/greenhouse_service.dart';
+import 'package:my_greenhouse/services/myfood_service.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -32,8 +34,8 @@ class _MyAppState extends State<MyApp> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthService()),
-        //ChangeNotifierProvider(create: (_) => SocketService()),
-        //ChangeNotifierProvider(create: (_) => ChatService()),
+        ChangeNotifierProvider(create: (_) => GreenhouseService()),
+        ChangeNotifierProvider(create: (_) => MyfoodService()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

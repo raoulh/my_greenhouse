@@ -4,13 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:my_greenhouse/models/models.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:my_greenhouse/services/myfood_service.dart';
 
 class LineChartWidget extends StatefulWidget {
   final String title;
   final void Function()? onMorePressed;
+  final ChartResult chartData;
 
-  const LineChartWidget({Key? key, required this.title, this.onMorePressed})
-      : super(key: key);
+  const LineChartWidget({
+    Key? key,
+    required this.title,
+    this.onMorePressed,
+    required this.chartData,
+  }) : super(key: key);
 
   @override
   State<LineChartWidget> createState() => _LineChartState();
@@ -23,7 +29,8 @@ class _LineChartState extends State<LineChartWidget> {
   double _maxY = 8;
   final int _divider = 1;
 
-  double _zoomMin = 0, _zoomMax = 0;
+  double _zoomMax = 0;
+  double _zoomMin = 0;
   double _zoomStep = 0;
   double _prevMinX = 0;
   double _prevMaxX = 0;
@@ -44,7 +51,6 @@ class _LineChartState extends State<LineChartWidget> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(_getWidgetInfo);
-    _prepareDemoPHData();
   }
 
   void _getWidgetInfo(_) {
@@ -53,31 +59,13 @@ class _LineChartState extends State<LineChartWidget> {
     _widgetSize = renderBox.size;
   }
 
-  void _prepareDemoPHData() async {
-    List<MeasValue>? data = await loadPHDataDay();
-
-    data?.sort((a, b) {
-      //sorting in ascending order
-      return a.captureDate.compareTo(b.captureDate);
-    });
-
-    _zoomMin = data!.first.captureDate.millisecondsSinceEpoch.toDouble();
-    _zoomMax = data.last.captureDate.millisecondsSinceEpoch.toDouble();
-
-    //Load other ranges, and append them
-    List<MeasValue>? dataW = await loadPHDataWeek();
-    List<MeasValue>? dataM = await loadPHData3Months();
-
-    data = [...data, ...dataW!, ...dataM!];
-    data.sort((a, b) {
-      //sorting in ascending order
-      return a.captureDate.compareTo(b.captureDate);
-    });
-
+  void _prepareData() async {
+    _zoomMin = widget.chartData.zoomMin;
+    _zoomMax = widget.chartData.zoomMax;
     double minY = 4;
     double maxY = 8;
 
-    _values = data.map((mvalue) {
+    _values = widget.chartData.values.map((mvalue) {
       if (mvalue.value < minY) {
         minY = mvalue.value - 0.5;
       }
@@ -191,6 +179,8 @@ class _LineChartState extends State<LineChartWidget> {
 
   @override
   Widget build(BuildContext context) {
+    _prepareData();
+
     return Column(
       children: [
         Row(

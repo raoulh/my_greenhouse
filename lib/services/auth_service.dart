@@ -7,7 +7,7 @@ import 'package:my_greenhouse/global/environment.dart';
 import 'package:my_greenhouse/models/models.dart';
 
 class AuthService with ChangeNotifier {
-  final _storage = const FlutterSecureStorage(
+  static const _storage = FlutterSecureStorage(
     iOptions: IOSOptions(
       accessibility: IOSAccessibility.first_unlock,
       accountName: "greenhouse_storage",
@@ -25,8 +25,7 @@ class AuthService with ChangeNotifier {
   }
 
   static Future<String?> getToken() async {
-    const storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'token');
+    final token = await _storage.read(key: 'token');
     return token;
   }
 

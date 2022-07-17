@@ -1,3 +1,5 @@
+import 'package:my_greenhouse/models/json_conv.dart';
+
 class RawData {
   final bool? failed;
   final bool? succeeded;
@@ -33,6 +35,14 @@ class ResultData {
       json['resultData'].forEach((v) {
         res.resultData.add(MeasValue.fromJson(v));
       });
+    } else if (json['responceAirTemperatureData'] != null) {
+      json['responceAirTemperatureData'].forEach((v) {
+        res.resultData.add(MeasValue.fromJson(v));
+      });
+    } else if (json['resultHumidityMeasureData'] != null) {
+      json['resultHumidityMeasureData'].forEach((v) {
+        res.resultData.add(MeasValue.fromJson(v));
+      });
     }
 
     return res;
@@ -53,8 +63,8 @@ class MeasValue {
 
   factory MeasValue.fromJson(Map<String, dynamic> json) {
     return MeasValue(
-      value: _toDouble(json['value']),
-      captureDate: _toDateTime(json['captureDate']),
+      value: JsonConv.toDouble(json['value']),
+      captureDate: JsonConv.toDateTime(json['captureDate']),
     );
   }
 
@@ -64,28 +74,4 @@ class MeasValue {
       'captureDate': captureDate.toString(),
     };
   }
-}
-
-double _toDouble(data) {
-  if (data == null) {
-    return 0;
-  }
-  if (data is int) {
-    return data.toDouble();
-  }
-  return data as double;
-}
-
-DateTime _toDateTime(data) {
-  if (data == null) {
-    return DateTime.now();
-  }
-  if (data is String) {
-    if (data.contains(".")) {
-      //data = data.substring(0, data.length - 1);
-    }
-
-    return DateTime.parse(data);
-  }
-  return DateTime.now();
 }

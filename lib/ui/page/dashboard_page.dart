@@ -5,6 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:my_greenhouse/models/greenhouse_response.dart';
+import 'package:my_greenhouse/services/greenhouse_service.dart';
+import 'package:my_greenhouse/services/myfood_service.dart';
+import 'package:provider/provider.dart';
 
 import '../page/modal_with_navigator.dart';
 import '../page/modal_fit.dart';
@@ -20,11 +24,107 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+  late GreenhouseService grService;
+  late MyfoodService mfService;
+
+  GreenhouseResponse resultData =
+      GreenhouseResponse(error: true, username: "", meas: []);
+  int currentProdUnit = 0;
+
+  ChartResult phData = ChartResult([], 0, 0);
+  ChartResult waterData = ChartResult([], 0, 0);
+  ChartResult airData = ChartResult([], 0, 0);
+  ChartResult humiData = ChartResult([], 0, 0);
+
+  @override
+  void initState() {
+    super.initState();
+
+    grService = Provider.of<GreenhouseService>(context, listen: false);
+    mfService = Provider.of<MyfoodService>(context, listen: false);
+
+    _loadInitialData();
+  }
+
+  void _loadInitialData() async {
+    resultData = await grService.getCurrentData();
+    setState(() {});
+
+    int prodUnit = resultData.meas[currentProdUnit].productUnitId;
+
+    phData = await mfService.getPHData(prodUnit);
+    setState(() {});
+    waterData = await mfService.getWaterTempData(prodUnit);
+    setState(() {});
+    airData = await mfService.getAirTempData(prodUnit);
+    setState(() {});
+    humiData = await mfService.getHumidityData(prodUnit);
+    setState(() {});
+  }
+
+  void _refreshData() async {
+    resultData = await grService.getRefreshedData();
+    setState(() {});
+
+    int prodUnit = resultData.meas[currentProdUnit].productUnitId;
+
+    phData = await mfService.getPHData(prodUnit);
+    setState(() {});
+    waterData = await mfService.getWaterTempData(prodUnit);
+    setState(() {});
+    airData = await mfService.getAirTempData(prodUnit);
+    setState(() {});
+    humiData = await mfService.getHumidityData(prodUnit);
+    setState(() {});
+  }
+
+  String _appBarTitle() {
+    if (currentProdUnit < resultData.meas.length) {
+      return resultData.meas[currentProdUnit].productUnitType;
+    }
+    return "N/A";
+  }
+
+  ProdMeas _phData() {
+    if (currentProdUnit < resultData.meas.length) {
+      return resultData.meas[currentProdUnit].ph;
+    }
+    return ProdMeas(currentValue: 0, hourAverageValue: 0, dayAverageValue: 0);
+  }
+
+  ProdMeas _waterTempData() {
+    if (currentProdUnit < resultData.meas.length) {
+      return resultData.meas[currentProdUnit].waterTemp;
+    }
+    return ProdMeas(currentValue: 0, hourAverageValue: 0, dayAverageValue: 0);
+  }
+
+  ProdMeas _airTempData() {
+    if (currentProdUnit < resultData.meas.length) {
+      return resultData.meas[currentProdUnit].airTemp;
+    }
+    return ProdMeas(currentValue: 0, hourAverageValue: 0, dayAverageValue: 0);
+  }
+
+  ProdMeas _humidityData() {
+    if (currentProdUnit < resultData.meas.length) {
+      return resultData.meas[currentProdUnit].humidity;
+    }
+    return ProdMeas(currentValue: 0, hourAverageValue: 0, dayAverageValue: 0);
+  }
+
+  ProdUnit? _selectedProdUnit() {
+    if (currentProdUnit < resultData.meas.length) {
+      return resultData.meas[currentProdUnit];
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const MainAppBar(
-        title: "Family22 - Original",
+      appBar: MainAppBar(
+        title: _appBarTitle(),
         showSettings: true,
       ),
       backgroundColor: Colors.white,
@@ -34,14 +134,18 @@ class _DashboardPageState extends State<DashboardPage> {
             : const ClampingScrollPhysics(),
         child: Column(
           children: [
-            _SumarySection(),
+            _SumarySection(
+              resultData: _selectedProdUnit(),
+              onPressed: _refreshData,
+            ),
             const SizedBox(height: 10),
             _ChartSection(
               title: "Evolution du pH",
               titleBox1: "Moyenne 1h",
-              valueBox1: "6.9 pH",
+              valueBox1: _phData().hourAverageValue.toString(),
               titleBox2: "Moyenne 24h",
-              valueBox2: "7 pH",
+              valueBox2: _phData().dayAverageValue.toString(),
+              chartData: phData,
               onMorePressed: () {
                 WidgetBuilder builder;
                 if (Platform.isIOS) {
@@ -62,17 +166,28 @@ class _DashboardPageState extends State<DashboardPage> {
             _ChartSection(
               title: "Température de l'eau",
               titleBox1: "Moyenne 1h",
-              valueBox1: "22.5°",
+              valueBox1: _waterTempData().hourAverageValue.toString(),
               titleBox2: "Moyenne 24h",
-              valueBox2: "18°",
+              valueBox2: _waterTempData().dayAverageValue.toString(),
+              chartData: waterData,
             ),
             const SizedBox(height: 10),
             _ChartSection(
               title: "Température de l'air",
               titleBox1: "Moyenne 1h",
-              valueBox1: "38°",
+              valueBox1: _airTempData().hourAverageValue.toString(),
               titleBox2: "Moyenne 24h",
-              valueBox2: "21.15°",
+              valueBox2: _airTempData().dayAverageValue.toString(),
+              chartData: airData,
+            ),
+            const SizedBox(height: 10),
+            _ChartSection(
+              title: "Humidité",
+              titleBox1: "Moyenne 1h",
+              valueBox1: _humidityData().hourAverageValue.toString(),
+              titleBox2: "Moyenne 24h",
+              valueBox2: _humidityData().dayAverageValue.toString(),
+              chartData: humiData,
             ),
             const SizedBox(height: 20),
           ],
@@ -83,6 +198,43 @@ class _DashboardPageState extends State<DashboardPage> {
 }
 
 class _SumarySection extends StatelessWidget {
+  final ProdUnit? resultData;
+  final VoidCallback? onPressed;
+
+  const _SumarySection({required this.resultData, required this.onPressed});
+
+  String _currentPH() {
+    if (resultData != null && resultData?.ph != null) {
+      return resultData!.ph.currentValue.toString();
+    }
+    return "-";
+  }
+
+  String _currentWaterTemp() {
+    if (resultData != null && resultData?.waterTemp != null) {
+      return resultData!.waterTemp.currentValue.toString();
+    }
+    return "-";
+  }
+
+  String _currentAirTemp() {
+    if (resultData != null && resultData?.airTemp != null) {
+      return resultData!.airTemp.currentValue.toString();
+    }
+    return "-";
+  }
+
+  String _currentPic() {
+    if (resultData != null) {
+      if (resultData!.productUnitType.contains("Family")) {
+        return "assets/family.png";
+      } else if (resultData!.productUnitType.contains("City")) {
+        return "assets/city.png";
+      }
+    }
+    return "assets/family.png";
+  }
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -94,7 +246,7 @@ class _SumarySection extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  "6.9 pH",
+                  "${_currentPH()} pH",
                   style: GoogleFonts.montserrat(
                     fontSize: 40,
                     fontWeight: FontWeight.w600,
@@ -105,7 +257,7 @@ class _SumarySection extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      "27.6°",
+                      "${_currentWaterTemp()}°",
                       style: GoogleFonts.montserrat(
                         fontSize: 27,
                         fontWeight: FontWeight.w400,
@@ -123,7 +275,7 @@ class _SumarySection extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      "36.4°",
+                      "${_currentAirTemp()}°",
                       style: GoogleFonts.montserrat(
                         fontSize: 27,
                         fontWeight: FontWeight.w400,
@@ -137,6 +289,10 @@ class _SumarySection extends StatelessWidget {
                     ),
                   ],
                 ),
+                ElevatedButton(
+                  onPressed: onPressed,
+                  child: const Text('refresh'),
+                ),
               ],
             ),
           ),
@@ -149,7 +305,7 @@ class _SumarySection extends StatelessWidget {
                 Positioned(
                   left: 0,
                   child: Image.asset(
-                    'assets/family.png',
+                    _currentPic(),
                     fit: BoxFit.cover,
                     height: 320,
                   ),
@@ -170,6 +326,7 @@ class _ChartSection extends StatelessWidget {
   final String titleBox2;
   final String valueBox2;
   final void Function()? onMorePressed;
+  final ChartResult chartData;
 
   _ChartSection({
     required this.title,
@@ -177,6 +334,7 @@ class _ChartSection extends StatelessWidget {
     required this.valueBox1,
     required this.titleBox2,
     required this.valueBox2,
+    required this.chartData,
     this.onMorePressed,
   });
 
@@ -210,6 +368,7 @@ class _ChartSection extends StatelessWidget {
             child: LineChartWidget(
               title: title,
               onMorePressed: onMorePressed,
+              chartData: chartData,
             ),
           ),
           Positioned(
