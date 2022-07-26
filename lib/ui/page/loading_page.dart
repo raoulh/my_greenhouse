@@ -27,11 +27,11 @@ class LoadingPage extends StatelessWidget {
     if (auth) {
       Future.delayed(const Duration(seconds: 1));
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushReplacementNamed(context, '/dashboard');
+        Navigator.pushReplacementNamed(context, 'dashboard');
       });
     } else {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushReplacementNamed(context, '/login');
+        Navigator.pushReplacementNamed(context, 'login');
       });
     }
   }

@@ -31,7 +31,6 @@ class _LineChartState extends State<LineChartWidget> {
 
   double _zoomMax = 0;
   double _zoomMin = 0;
-  double _zoomStep = 0;
   double _prevMinX = 0;
   double _prevMaxX = 0;
 
@@ -79,22 +78,25 @@ class _LineChartState extends State<LineChartWidget> {
       );
     }).toList();
 
-    _minX = _zoomMin;
-    _maxX = _zoomMax;
+    if (_minX == 0) {
+      _minX = _zoomMin;
+    }
+    if (_maxX == 0) {
+      _maxX = _zoomMax;
+    }
     _minY = (minY / _divider).floorToDouble() * _divider;
     _maxY = (maxY / _divider).ceilToDouble() * _divider;
-    _zoomStep = (_zoomMax - _zoomMin) / 12;
 
     setState(() {});
   }
 
   void zoomIn() {
     setState(() {
-      _zoomStep = (_maxX - _minX) / 12;
+      var zoomStep = (_maxX - _minX) / 12;
       var prevMinX = _minX;
       var prevMaxX = _maxX;
-      _minX += _zoomStep;
-      _maxX -= _zoomStep;
+      _minX += zoomStep;
+      _maxX -= zoomStep;
 
       if (_maxX - _minX < _maxZoomLevelMs) {
         _minX = prevMinX;
@@ -105,9 +107,9 @@ class _LineChartState extends State<LineChartWidget> {
 
   void zoomOut() {
     setState(() {
-      _zoomStep = (_maxX - _minX) / 12;
-      _minX -= _zoomStep;
-      _maxX += _zoomStep;
+      var zoomStep = (_maxX - _minX) / 12;
+      _minX -= zoomStep;
+      _maxX += zoomStep;
     });
   }
 

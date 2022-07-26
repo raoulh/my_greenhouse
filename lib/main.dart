@@ -7,7 +7,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:my_greenhouse/routes/routes.dart';
 import 'package:my_greenhouse/services/auth_service.dart';
+import 'package:my_greenhouse/services/connectivity_provider.dart';
 import 'package:my_greenhouse/services/greenhouse_service.dart';
+import 'package:my_greenhouse/services/lifecycle_service.dart';
 import 'package:my_greenhouse/services/myfood_service.dart';
 import 'package:provider/provider.dart';
 
@@ -29,6 +31,21 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  late LifeCycleService lifeCycleService;
+
+  @override
+  void initState() {
+    super.initState();
+    lifeCycleService = LifeCycleService();
+    WidgetsBinding.instance.addObserver(lifeCycleService);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(lifeCycleService);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -36,12 +53,14 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => AuthService()),
         ChangeNotifierProvider(create: (_) => GreenhouseService()),
         ChangeNotifierProvider(create: (_) => MyfoodService()),
+        ChangeNotifierProvider(create: (_) => lifeCycleService),
+        ChangeNotifierProvider(create: (_) => ConnectivityProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'MyFood App',
-        initialRoute: '/loading',
-        routes: appRoutes,
+        initialRoute: 'loading',
+        onGenerateRoute: CustomRoutes.getRoutes,
         localeResolutionCallback: (deviceLocale, supportedLocales) {
           Intl.defaultLocale = deviceLocale.toString();
           return deviceLocale;

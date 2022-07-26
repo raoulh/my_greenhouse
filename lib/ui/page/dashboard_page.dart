@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
@@ -6,8 +7,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:my_greenhouse/models/greenhouse_response.dart';
+import 'package:my_greenhouse/services/failure.dart';
 import 'package:my_greenhouse/services/greenhouse_service.dart';
+import 'package:my_greenhouse/services/lifecycle_service.dart';
 import 'package:my_greenhouse/services/myfood_service.dart';
+import 'package:my_greenhouse/ui/widgets/error_dialog.dart';
 import 'package:provider/provider.dart';
 
 import '../page/modal_with_navigator.dart';
@@ -26,6 +30,7 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   late GreenhouseService grService;
   late MyfoodService mfService;
+  late LifeCycleService lifecycleService;
 
   GreenhouseResponse resultData =
       GreenhouseResponse(error: true, username: "", meas: []);
@@ -42,40 +47,89 @@ class _DashboardPageState extends State<DashboardPage> {
 
     grService = Provider.of<GreenhouseService>(context, listen: false);
     mfService = Provider.of<MyfoodService>(context, listen: false);
+    lifecycleService = Provider.of<LifeCycleService>(context, listen: false);
 
     _loadInitialData();
+
+    //reload when app is resumed
+    lifecycleService.addResumeObserver(_loadInitialData);
   }
 
-  void _loadInitialData() async {
-    resultData = await grService.getCurrentData();
-    setState(() {});
-
-    int prodUnit = resultData.meas[currentProdUnit].productUnitId;
-
-    phData = await mfService.getPHData(prodUnit);
-    setState(() {});
-    waterData = await mfService.getWaterTempData(prodUnit);
-    setState(() {});
-    airData = await mfService.getAirTempData(prodUnit);
-    setState(() {});
-    humiData = await mfService.getHumidityData(prodUnit);
-    setState(() {});
+  @override
+  void dispose() {
+    lifecycleService.removeResumeObserver(_loadInitialData);
+    super.dispose();
   }
 
-  void _refreshData() async {
-    resultData = await grService.getRefreshedData();
-    setState(() {});
+  Future<void> _loadInitialData() async {
+    print("_loadInitialData");
+    try {
+      resultData = await grService.getCurrentData();
+      setState(() {});
 
-    int prodUnit = resultData.meas[currentProdUnit].productUnitId;
+      if (currentProdUnit >= resultData.meas.length) {
+        return;
+      }
 
-    phData = await mfService.getPHData(prodUnit);
-    setState(() {});
-    waterData = await mfService.getWaterTempData(prodUnit);
-    setState(() {});
-    airData = await mfService.getAirTempData(prodUnit);
-    setState(() {});
-    humiData = await mfService.getHumidityData(prodUnit);
-    setState(() {});
+      int prodUnit = resultData.meas[currentProdUnit].productUnitId;
+
+      phData = await mfService.getPHData(prodUnit);
+      setState(() {});
+      waterData = await mfService.getWaterTempData(prodUnit);
+      setState(() {});
+      airData = await mfService.getAirTempData(prodUnit);
+      setState(() {});
+      humiData = await mfService.getHumidityData(prodUnit);
+      setState(() {});
+    } on Failure catch (e) {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return ErrorDialog(
+              message: e.toString(),
+              buttonText: "Try again",
+              buttonFn: () {
+                Navigator.pop(context);
+                _loadInitialData();
+              },
+            );
+          });
+    }
+  }
+
+  Future<void> _refreshData() async {
+    try {
+      resultData = await grService.getRefreshedData();
+      setState(() {});
+
+      if (currentProdUnit >= resultData.meas.length) {
+        return;
+      }
+
+      int prodUnit = resultData.meas[currentProdUnit].productUnitId;
+
+      phData = await mfService.getPHData(prodUnit);
+      setState(() {});
+      waterData = await mfService.getWaterTempData(prodUnit);
+      setState(() {});
+      airData = await mfService.getAirTempData(prodUnit);
+      setState(() {});
+      humiData = await mfService.getHumidityData(prodUnit);
+      setState(() {});
+    } catch (e) {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return ErrorDialog(
+              message: e.toString(),
+              buttonText: "Try again",
+              buttonFn: () {
+                Navigator.pop(context);
+                _refreshData();
+              },
+            );
+          });
+    }
   }
 
   String _appBarTitle() {

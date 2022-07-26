@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:progress_state_button/iconed_button.dart';
 import 'package:progress_state_button/progress_button.dart';
 import 'package:my_greenhouse/ui/widgets/logo.dart';
-import 'package:my_greenhouse/ui/background/background.dart';
+import 'package:my_greenhouse/ui/widgets/background.dart';
 import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
@@ -38,7 +38,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
         if (auth) {
           Future.delayed(const Duration(milliseconds: 600), () {
-            Navigator.pushReplacementNamed(context, '/dashboard');
+            Navigator.pushReplacementNamed(context, 'dashboard');
             setState(() {
               stateLoginButton = ButtonState.idle;
             });
@@ -83,47 +83,59 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                         child: const Logo(),
                       ),
                     ),
-                    Expanded(
-                      flex: 7,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          editComponent(Icons.account_circle_outlined,
-                              'Email...', false, true, emailCtrl),
-                          editComponent(Icons.lock_outline, 'Password...', true,
-                              false, passCtrl),
-                          ProgressButton.icon(
-                              iconedButtons: {
-                                ButtonState.idle: IconedButton(
-                                    text: "Login",
-                                    icon: const Icon(Icons.login,
-                                        color: Colors.white),
-                                    color: Colors.green.shade500),
-                                ButtonState.loading: IconedButton(
-                                    text: "Loading",
-                                    color: Colors.green.shade700),
-                                ButtonState.fail: IconedButton(
-                                    text: "Failed",
-                                    icon: const Icon(Icons.cancel,
-                                        color: Colors.white),
-                                    color: Colors.red.shade300),
-                                ButtonState.success: IconedButton(
-                                    text: "Success",
-                                    icon: const Icon(
-                                      Icons.check_circle,
-                                      color: Colors.white,
-                                    ),
-                                    color: Colors.green.shade400)
-                              },
-                              onPressed: () {
-                                onPressedLoginButton(context);
-                              },
-                              state: stateLoginButton),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [],
-                          ),
-                        ],
+                    AutofillGroup(
+                      child: Expanded(
+                        flex: 7,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            editComponent(
+                                Icons.account_circle_outlined,
+                                'Email...',
+                                false,
+                                true,
+                                emailCtrl,
+                                const <String>[AutofillHints.email]),
+                            editComponent(
+                                Icons.lock_outline,
+                                'Password...',
+                                true,
+                                false,
+                                passCtrl,
+                                const <String>[AutofillHints.password]),
+                            ProgressButton.icon(
+                                iconedButtons: {
+                                  ButtonState.idle: IconedButton(
+                                      text: "Login",
+                                      icon: const Icon(Icons.login,
+                                          color: Colors.white),
+                                      color: Colors.green.shade500),
+                                  ButtonState.loading: IconedButton(
+                                      text: "Loading",
+                                      color: Colors.green.shade700),
+                                  ButtonState.fail: IconedButton(
+                                      text: "Failed",
+                                      icon: const Icon(Icons.cancel,
+                                          color: Colors.white),
+                                      color: Colors.red.shade300),
+                                  ButtonState.success: IconedButton(
+                                      text: "Success",
+                                      icon: const Icon(
+                                        Icons.check_circle,
+                                        color: Colors.white,
+                                      ),
+                                      color: Colors.green.shade400)
+                                },
+                                onPressed: () {
+                                  onPressedLoginButton(context);
+                                },
+                                state: stateLoginButton),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     Expanded(
@@ -143,8 +155,13 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget editComponent(IconData icon, String hintText, bool isPassword,
-      bool isEmail, TextEditingController controller) {
+  Widget editComponent(
+      IconData icon,
+      String hintText,
+      bool isPassword,
+      bool isEmail,
+      TextEditingController controller,
+      Iterable<String>? autofillHint) {
     Size size = MediaQuery.of(context).size;
     return ClipRRect(
       borderRadius: BorderRadius.circular(15),
@@ -180,6 +197,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               hintStyle:
                   TextStyle(fontSize: 14, color: Colors.white.withOpacity(.5)),
             ),
+            autofillHints: autofillHint,
           ),
         ),
       ),

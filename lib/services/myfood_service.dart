@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:my_greenhouse/global/environment.dart';
 import 'package:my_greenhouse/models/graphs/graphs.dart';
 import 'package:my_greenhouse/services/auth_service.dart';
 import 'package:http/http.dart' as http;
+import 'package:my_greenhouse/services/failure.dart';
 
 class ChartResult {
   List<MeasValue> values;
@@ -28,11 +30,23 @@ class MyfoodService with ChangeNotifier {
       return [];
     }
 
-    final res = await http.get(Uri.parse(url), headers: {
-      'Authorization': tokenAuth,
-    });
+    try {
+      final res = await http.get(Uri.parse(url), headers: {
+        'Authorization': tokenAuth,
+      });
 
-    return RawData.fromJson(json.decode(res.body)).data?.resultData;
+      if (res.statusCode != 200) {
+        throw Failure('Failure to connect to server');
+      }
+
+      return RawData.fromJson(json.decode(res.body)).data?.resultData;
+    } on SocketException {
+      throw Failure('Failure to connect to server');
+    } on HttpException {
+      throw Failure("Unable to load data");
+    } on FormatException {
+      throw Failure("Bad response format");
+    }
   }
 
   Future<ChartResult> _callApiChart(String api, int prodUnitId) async {
@@ -43,8 +57,13 @@ class MyfoodService with ChangeNotifier {
       return a.captureDate.compareTo(b.captureDate);
     });
 
-    double zoomMin = data!.first.captureDate.millisecondsSinceEpoch.toDouble();
-    double zoomMax = data.last.captureDate.millisecondsSinceEpoch.toDouble();
+    double zoomMin = 0;
+    double zoomMax = 0;
+
+    if (data!.isNotEmpty) {
+      zoomMin = data.first.captureDate.millisecondsSinceEpoch.toDouble();
+      zoomMax = data.last.captureDate.millisecondsSinceEpoch.toDouble();
+    }
 
     //Load other ranges, and append them
     List<MeasValue>? dataW = await _callApi(api, prodUnitId, 1);
