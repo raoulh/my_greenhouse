@@ -13,6 +13,7 @@ import 'package:my_greenhouse/services/lifecycle_service.dart';
 import 'package:my_greenhouse/services/myfood_service.dart';
 import 'package:my_greenhouse/ui/widgets/error_dialog.dart';
 import 'package:provider/provider.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 import '../page/modal_with_navigator.dart';
 import '../page/modal_fit.dart';
@@ -97,13 +98,13 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
-  Future<void> _refreshData() async {
+  Future<bool> _refreshData() async {
     try {
       resultData = await grService.getRefreshedData();
       setState(() {});
 
       if (currentProdUnit >= resultData.meas.length) {
-        return;
+        return true;
       }
 
       int prodUnit = resultData.meas[currentProdUnit].productUnitId;
@@ -116,6 +117,8 @@ class _DashboardPageState extends State<DashboardPage> {
       setState(() {});
       humiData = await mfService.getHumidityData(prodUnit);
       setState(() {});
+
+      return true;
     } catch (e) {
       showDialog(
           context: context,
@@ -129,6 +132,7 @@ class _DashboardPageState extends State<DashboardPage> {
               },
             );
           });
+      return false;
     }
   }
 
@@ -174,6 +178,19 @@ class _DashboardPageState extends State<DashboardPage> {
     return null;
   }
 
+  final RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
+
+  void _onRefresh() async {
+    bool success = await _refreshData();
+
+    if (!success) {
+      _refreshController.refreshFailed();
+    } else {
+      _refreshController.refreshCompleted();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -182,69 +199,75 @@ class _DashboardPageState extends State<DashboardPage> {
         showSettings: true,
       ),
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        physics: Platform.isIOS
-            ? const BouncingScrollPhysics()
-            : const ClampingScrollPhysics(),
-        child: Column(
-          children: [
-            _SumarySection(
-              resultData: _selectedProdUnit(),
-              onPressed: _refreshData,
-            ),
-            const SizedBox(height: 10),
-            _ChartSection(
-              title: "Evolution du pH",
-              titleBox1: "Moyenne 1h",
-              valueBox1: _phData().hourAverageValue.toString(),
-              titleBox2: "Moyenne 24h",
-              valueBox2: _phData().dayAverageValue.toString(),
-              chartData: phData,
-              onMorePressed: () {
-                WidgetBuilder builder;
-                if (Platform.isIOS) {
-                  builder = (context) => ModalWithNavigator();
-                } else {
-                  builder = (context) => ModalFit();
-                }
+      body: SmartRefresher(
+        enablePullDown: true,
+        enablePullUp: false,
+        header: const WaterDropHeader(),
+        controller: _refreshController,
+        onRefresh: _onRefresh,
+        child: SingleChildScrollView(
+          physics: Platform.isIOS
+              ? const BouncingScrollPhysics()
+              : const ClampingScrollPhysics(),
+          child: Column(
+            children: [
+              _SumarySection(
+                resultData: _selectedProdUnit(),
+              ),
+              const SizedBox(height: 10),
+              _ChartSection(
+                title: "Evolution du pH",
+                titleBox1: "Moyenne 1h",
+                valueBox1: _phData().hourAverageValue.toString(),
+                titleBox2: "Moyenne 24h",
+                valueBox2: _phData().dayAverageValue.toString(),
+                chartData: phData,
+                onMorePressed: () {
+                  WidgetBuilder builder;
+                  if (Platform.isIOS) {
+                    builder = (context) => ModalWithNavigator();
+                  } else {
+                    builder = (context) => ModalFit();
+                  }
 
-                showCupertinoModalBottomSheet(
-                  expand: Platform.isIOS,
-                  context: context,
-                  backgroundColor: Colors.transparent,
-                  builder: builder,
-                );
-              },
-            ),
-            const SizedBox(height: 10),
-            _ChartSection(
-              title: "Température de l'eau",
-              titleBox1: "Moyenne 1h",
-              valueBox1: _waterTempData().hourAverageValue.toString(),
-              titleBox2: "Moyenne 24h",
-              valueBox2: _waterTempData().dayAverageValue.toString(),
-              chartData: waterData,
-            ),
-            const SizedBox(height: 10),
-            _ChartSection(
-              title: "Température de l'air",
-              titleBox1: "Moyenne 1h",
-              valueBox1: _airTempData().hourAverageValue.toString(),
-              titleBox2: "Moyenne 24h",
-              valueBox2: _airTempData().dayAverageValue.toString(),
-              chartData: airData,
-            ),
-            const SizedBox(height: 10),
-            _ChartSection(
-              title: "Humidité",
-              titleBox1: "Moyenne 1h",
-              valueBox1: _humidityData().hourAverageValue.toString(),
-              titleBox2: "Moyenne 24h",
-              valueBox2: _humidityData().dayAverageValue.toString(),
-              chartData: humiData,
-            ),
-            const SizedBox(height: 20),
-          ],
+                  showCupertinoModalBottomSheet(
+                    expand: Platform.isIOS,
+                    context: context,
+                    backgroundColor: Colors.transparent,
+                    builder: builder,
+                  );
+                },
+              ),
+              const SizedBox(height: 10),
+              _ChartSection(
+                title: "Température de l'eau",
+                titleBox1: "Moyenne 1h",
+                valueBox1: _waterTempData().hourAverageValue.toString(),
+                titleBox2: "Moyenne 24h",
+                valueBox2: _waterTempData().dayAverageValue.toString(),
+                chartData: waterData,
+              ),
+              const SizedBox(height: 10),
+              _ChartSection(
+                title: "Température de l'air",
+                titleBox1: "Moyenne 1h",
+                valueBox1: _airTempData().hourAverageValue.toString(),
+                titleBox2: "Moyenne 24h",
+                valueBox2: _airTempData().dayAverageValue.toString(),
+                chartData: airData,
+              ),
+              const SizedBox(height: 10),
+              _ChartSection(
+                title: "Humidité",
+                titleBox1: "Moyenne 1h",
+                valueBox1: _humidityData().hourAverageValue.toString(),
+                titleBox2: "Moyenne 24h",
+                valueBox2: _humidityData().dayAverageValue.toString(),
+                chartData: humiData,
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );
@@ -253,9 +276,8 @@ class _DashboardPageState extends State<DashboardPage> {
 
 class _SumarySection extends StatelessWidget {
   final ProdUnit? resultData;
-  final VoidCallback? onPressed;
 
-  const _SumarySection({required this.resultData, required this.onPressed});
+  const _SumarySection({required this.resultData});
 
   String _currentPH() {
     if (resultData != null && resultData?.ph != null) {
@@ -342,10 +364,6 @@ class _SumarySection extends StatelessWidget {
                       color: Color(0xff004455),
                     ),
                   ],
-                ),
-                ElevatedButton(
-                  onPressed: onPressed,
-                  child: const Text('refresh'),
                 ),
               ],
             ),

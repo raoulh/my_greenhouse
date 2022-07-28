@@ -12,6 +12,7 @@ import 'package:my_greenhouse/services/greenhouse_service.dart';
 import 'package:my_greenhouse/services/lifecycle_service.dart';
 import 'package:my_greenhouse/services/myfood_service.dart';
 import 'package:provider/provider.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 void main() {
   runApp(const MyApp());
@@ -71,6 +72,7 @@ class _MyAppState extends State<MyApp> {
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
+          RefreshLocalizations.delegate,
         ],
         supportedLocales: const [
           Locale('en', 'US'), // English
