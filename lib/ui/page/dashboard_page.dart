@@ -11,12 +11,10 @@ import 'package:my_greenhouse/services/failure.dart';
 import 'package:my_greenhouse/services/greenhouse_service.dart';
 import 'package:my_greenhouse/services/lifecycle_service.dart';
 import 'package:my_greenhouse/services/myfood_service.dart';
+import 'package:my_greenhouse/ui/page/notif_settings_view.dart';
 import 'package:my_greenhouse/ui/widgets/error_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
-
-import '../page/modal_with_navigator.dart';
-import '../page/modal_fit.dart';
 
 import '../widgets/appbar.dart';
 import '../widgets/chart.dart';
@@ -223,18 +221,10 @@ class _DashboardPageState extends State<DashboardPage> {
                 valueBox2: _phData().dayAverageValue.toString(),
                 chartData: phData,
                 onMorePressed: () {
-                  WidgetBuilder builder;
-                  if (Platform.isIOS) {
-                    builder = (context) => ModalWithNavigator();
-                  } else {
-                    builder = (context) => ModalFit();
-                  }
-
-                  showCupertinoModalBottomSheet(
-                    expand: Platform.isIOS,
-                    context: context,
-                    backgroundColor: Colors.transparent,
-                    builder: builder,
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const NotifSettingsPage()),
                   );
                 },
               ),

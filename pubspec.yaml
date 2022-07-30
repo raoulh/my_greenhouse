@@ -46,11 +46,11 @@ dependencies:
   intl: ^0.17.0
   flutter_localizations:
     sdk: flutter
-  modal_bottom_sheet: ^2.1.0
   shared_preferences: ^2.0.15
   unique_ids: ^3.0.0
   connectivity_plus: ^2.3.6
   pull_to_refresh_flutter3: ^2.0.1
+  settings_ui: ^2.0.2
 
 dev_dependencies:
   flutter_test:
