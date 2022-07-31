@@ -5,19 +5,17 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:my_greenhouse/models/greenhouse_response.dart';
 import 'package:my_greenhouse/services/failure.dart';
 import 'package:my_greenhouse/services/greenhouse_service.dart';
 import 'package:my_greenhouse/services/lifecycle_service.dart';
 import 'package:my_greenhouse/services/myfood_service.dart';
 import 'package:my_greenhouse/ui/page/notif_settings_view.dart';
+import 'package:my_greenhouse/ui/widgets/appbar.dart';
+import 'package:my_greenhouse/ui/widgets/chart.dart';
 import 'package:my_greenhouse/ui/widgets/error_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
-
-import '../widgets/appbar.dart';
-import '../widgets/chart.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({Key? key}) : super(key: key);
@@ -39,6 +37,8 @@ class _DashboardPageState extends State<DashboardPage> {
   ChartResult waterData = ChartResult([], 0, 0);
   ChartResult airData = ChartResult([], 0, 0);
   ChartResult humiData = ChartResult([], 0, 0);
+
+  bool resetZoom = false;
 
   @override
   void initState() {
@@ -62,7 +62,9 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Future<void> _loadInitialData() async {
     print("_loadInitialData");
+
     try {
+      resetZoom = false;
       resultData = await grService.getCurrentData();
       setState(() {});
 
@@ -98,6 +100,9 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Future<bool> _refreshData() async {
     try {
+      setState(() {
+        resetZoom = true;
+      });
       resultData = await grService.getRefreshedData();
       setState(() {});
 
@@ -115,6 +120,10 @@ class _DashboardPageState extends State<DashboardPage> {
       setState(() {});
       humiData = await mfService.getHumidityData(prodUnit);
       setState(() {});
+
+      setState(() {
+        resetZoom = false;
+      });
 
       return true;
     } catch (e) {
@@ -220,6 +229,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 titleBox2: "Moyenne 24h",
                 valueBox2: _phData().dayAverageValue.toString(),
                 chartData: phData,
+                resetZoom: resetZoom,
                 onMorePressed: () {
                   Navigator.push(
                     context,
@@ -236,6 +246,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 titleBox2: "Moyenne 24h",
                 valueBox2: _waterTempData().dayAverageValue.toString(),
                 chartData: waterData,
+                resetZoom: resetZoom,
               ),
               const SizedBox(height: 10),
               _ChartSection(
@@ -245,6 +256,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 titleBox2: "Moyenne 24h",
                 valueBox2: _airTempData().dayAverageValue.toString(),
                 chartData: airData,
+                resetZoom: resetZoom,
               ),
               const SizedBox(height: 10),
               _ChartSection(
@@ -254,6 +266,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 titleBox2: "Moyenne 24h",
                 valueBox2: _humidityData().dayAverageValue.toString(),
                 chartData: humiData,
+                resetZoom: resetZoom,
               ),
               const SizedBox(height: 20),
             ],
@@ -389,6 +402,7 @@ class _ChartSection extends StatelessWidget {
   final String valueBox2;
   final void Function()? onMorePressed;
   final ChartResult chartData;
+  final bool resetZoom;
 
   _ChartSection({
     required this.title,
@@ -398,6 +412,7 @@ class _ChartSection extends StatelessWidget {
     required this.valueBox2,
     required this.chartData,
     this.onMorePressed,
+    required this.resetZoom,
   });
 
   final Random random = Random();
@@ -431,6 +446,7 @@ class _ChartSection extends StatelessWidget {
               title: title,
               onMorePressed: onMorePressed,
               chartData: chartData,
+              resetZoom: resetZoom,
             ),
           ),
           Positioned(

@@ -2,20 +2,45 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:my_greenhouse/services/auth_service.dart';
 import 'package:my_greenhouse/ui/widgets/appbar.dart';
-import 'package:provider/provider.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 class NotifSettingsPage extends StatelessWidget {
   const NotifSettingsPage({Key? key}) : super(key: key);
 
-  void _logout(BuildContext context) async {
-    final authService = Provider.of<AuthService>(context, listen: false);
-    await authService.logout();
-    Future.delayed(const Duration(milliseconds: 600), () {
-      Navigator.pushReplacementNamed(context, 'login');
-    });
+  void _showHelpDialog(context, String text) {
+    if (!Platform.isIOS) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          // return object of type Dialog
+          return AlertDialog(
+            title: const Text("Help"),
+            content: Text(text),
+            actions: <Widget>[
+              TextButton(
+                child: const Text("Close"),
+                onPressed: () => Navigator.of(context).pop(true),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      showCupertinoDialog(
+        context: context,
+        builder: (context) => CupertinoAlertDialog(
+          title: const Text("Help"),
+          content: Text(text),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              child: const Text("Close"),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   @override
@@ -27,13 +52,29 @@ class NotifSettingsPage extends StatelessWidget {
       ),
       backgroundColor: Colors.white,
       body: SettingsList(
-        lightTheme: const SettingsThemeData(
-          settingsListBackground: Colors.white,
-          titleTextColor: Color(0xff2ea636),
+        //platform: DevicePlatform.android,
+        lightTheme: SettingsThemeData(
+          settingsListBackground: Platform.isAndroid ? Colors.white : null,
+          titleTextColor: const Color(0xff2ea636),
         ),
         sections: [
           SettingsSection(
-            title: const Text('Out of range'),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Out of range'.toUpperCase()),
+                CupertinoButton(
+                  padding: const EdgeInsets.all(8),
+                  child: Icon(
+                    CupertinoIcons.info,
+                    color: Colors.grey[700],
+                    size: 25.0,
+                  ),
+                  onPressed: () => _showHelpDialog(context,
+                      "When this option is enabled, a notification will be sent when the value goes out of range"),
+                ),
+              ],
+            ),
             tiles: <SettingsTile>[
               SettingsTile.switchTile(
                 onToggle: (value) {},
@@ -54,22 +95,52 @@ class NotifSettingsPage extends StatelessWidget {
             ],
           ),
           SettingsSection(
-            title: const Text('Changes too quickly'),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Changes too quickly'.toUpperCase()),
+                CupertinoButton(
+                  padding: const EdgeInsets.all(8),
+                  child: Icon(
+                    CupertinoIcons.info,
+                    color: Colors.grey[700],
+                    size: 25.0,
+                  ),
+                  onPressed: () => _showHelpDialog(context,
+                      "When this option is enabled, a notification will be sent when the value changes too quickly in a small amount of time"),
+                ),
+              ],
+            ),
             tiles: [
               SettingsTile.switchTile(
                 onToggle: (value) {},
                 initialValue: false,
-                title: Text('Enable'),
+                title: const Text('Enable'),
               ),
             ],
           ),
           SettingsSection(
-            title: const Text('No updates for some time'),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('No updates for some time'.toUpperCase()),
+                CupertinoButton(
+                  padding: const EdgeInsets.all(8),
+                  child: Icon(
+                    CupertinoIcons.info,
+                    color: Colors.grey[700],
+                    size: 25.0,
+                  ),
+                  onPressed: () => _showHelpDialog(context,
+                      "When this option is enabled, a notification will be sent when no data are available for more than the selected time"),
+                ),
+              ],
+            ),
             tiles: [
               SettingsTile.switchTile(
                 onToggle: (value) {},
                 initialValue: false,
-                title: Text('Enable'),
+                title: const Text('Enable'),
               ),
               SettingsTile.navigation(
                 title: const Text("Minimum value"),

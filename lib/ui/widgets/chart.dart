@@ -10,12 +10,14 @@ class LineChartWidget extends StatefulWidget {
   final String title;
   final void Function()? onMorePressed;
   final ChartResult chartData;
+  final bool resetZoom;
 
   const LineChartWidget({
     Key? key,
     required this.title,
     this.onMorePressed,
     required this.chartData,
+    required this.resetZoom,
   }) : super(key: key);
 
   @override
@@ -58,11 +60,15 @@ class _LineChartState extends State<LineChartWidget> {
     _widgetSize = renderBox.size;
   }
 
-  void _prepareData() async {
+  void _prepareData(bool resetZoom) async {
     _zoomMin = widget.chartData.zoomMin;
     _zoomMax = widget.chartData.zoomMax;
     double minY = 4;
     double maxY = 8;
+
+    if (resetZoom) {
+      _minX = _maxX = 0;
+    }
 
     _values = widget.chartData.values.map((mvalue) {
       if (mvalue.value < minY) {
@@ -181,7 +187,7 @@ class _LineChartState extends State<LineChartWidget> {
 
   @override
   Widget build(BuildContext context) {
-    _prepareData();
+    _prepareData(widget.resetZoom);
 
     return Column(
       children: [
