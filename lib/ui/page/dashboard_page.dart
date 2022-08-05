@@ -51,7 +51,7 @@ class _DashboardPageState extends State<DashboardPage> {
     _loadInitialData();
 
     //reload when app is resumed
-    lifecycleService.addResumeObserver(_loadInitialData);
+    lifecycleService.addResumeObserver(_refreshData);
   }
 
   @override
