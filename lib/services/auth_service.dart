@@ -43,6 +43,12 @@ class AuthService with ChangeNotifier {
     final url = '${Environment.apiUrl}/auth/login';
 
     try {
+      if (email == "demo" && password == "demo") {
+        //enable demo mode
+        await _saveToken("demo_token");
+        return true;
+      }
+
       final resp = await http.post(Uri.parse(url),
           body: jsonEncode(data),
           headers: {'Content-Type': 'application/json'});
@@ -71,6 +77,11 @@ class AuthService with ChangeNotifier {
 
   Future<bool> isLoggedIn() async {
     final token = await _getToken();
+
+    if (token == "demo_token") {
+      return true;
+    }
+
     var tokenAuth = 'Bearer ';
     if (token != null) {
       tokenAuth += token;

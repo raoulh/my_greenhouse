@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:my_greenhouse/global/environment.dart';
+import 'package:my_greenhouse/models/demo_data_loader.dart';
 import 'package:my_greenhouse/models/graphs/graphs.dart';
 import 'package:my_greenhouse/services/auth_service.dart';
 import 'package:http/http.dart' as http;
@@ -31,6 +33,17 @@ class MyfoodService with ChangeNotifier {
     }
 
     try {
+      if (token == "demo_token") {
+        var v = Random().nextInt(3);
+        if (v == 1) {
+          return await loadPHDataDay();
+        } else if (v == 2) {
+          return await loadPHDataWeek();
+        } else {
+          return await loadPHData3Months();
+        }
+      }
+
       final res = await http.get(Uri.parse(url), headers: {
         'Authorization': tokenAuth,
       });

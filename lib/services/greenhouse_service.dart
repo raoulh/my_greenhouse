@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:my_greenhouse/global/environment.dart';
+import 'package:my_greenhouse/models/demo_data_loader.dart';
 import 'package:my_greenhouse/models/greenhouse_response.dart';
 import 'package:my_greenhouse/models/prefs.dart';
 import 'package:my_greenhouse/services/auth_service.dart';
@@ -23,6 +24,10 @@ class GreenhouseService with ChangeNotifier {
     }
 
     try {
+      if (token == "demo_token") {
+        return await loadCurrent();
+      }
+
       final res = await http.get(Uri.parse(url), headers: {
         'Authorization': tokenAuth,
         'X-Device-Id': deviceId,
@@ -55,6 +60,11 @@ class GreenhouseService with ChangeNotifier {
     }
 
     try {
+      if (token == "demo_token") {
+        await Future.delayed(const Duration(seconds: 2));
+        return await loadCurrent();
+      }
+
       final res = await http.get(Uri.parse(url), headers: {
         'Authorization': tokenAuth,
         'X-Device-Id': deviceId,
