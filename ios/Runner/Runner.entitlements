@@ -7,5 +7,7 @@
 		<string>webcredentials:greenhouse.raoulh.pw</string>
 		<string>webcredentials:hub.myfood.eu</string>
 	</array>
+	<key>com.apple.developer.authentication-services.autofill-credential-provider</key>
+	<true/>
 </dict>
 </plist>
