@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:my_greenhouse/models/json_conv.dart';
+import 'package:my_greenhouse/services/greenhouse_service.dart';
 
 GreenhouseResponse greenhouseResponseFromJson(String str) =>
     GreenhouseResponse.fromJson(json.decode(str));
@@ -78,4 +79,60 @@ class ProdMeas {
         hourAverageValue: JsonConv.toDouble(json["hour_average_value"]),
         dayAverageValue: JsonConv.toDouble(json["day_average_value"]),
       );
+}
+
+NotifSettingsResponse notifSettingsResponseFromJson(String str) =>
+    NotifSettingsResponse.fromJson(json.decode(str));
+
+class NotifSettingsResponse {
+  NotifSettingsResponse({
+    required this.type,
+    required this.rangeEnabled,
+    required this.rangeMin,
+    required this.rangeMax,
+    required this.tooFastEnabled,
+    required this.timeEnabled,
+    required this.timeMin,
+  });
+
+  final NotifType type;
+  final bool rangeEnabled;
+  final double rangeMin;
+  final double rangeMax;
+  final bool tooFastEnabled;
+  final bool timeEnabled;
+  final double timeMin;
+
+  factory NotifSettingsResponse.empty(NotifType t) => NotifSettingsResponse(
+        type: t,
+        rangeEnabled: false,
+        rangeMin: 0,
+        rangeMax: 0,
+        tooFastEnabled: false,
+        timeEnabled: false,
+        timeMin: 0,
+      );
+
+  factory NotifSettingsResponse.fromJson(Map<String, dynamic> json) =>
+      NotifSettingsResponse(
+        type: json["type"],
+        rangeEnabled: json["range_enabled"],
+        rangeMin: JsonConv.toDouble(json["range_min"]),
+        rangeMax: JsonConv.toDouble(json["range_max"]),
+        tooFastEnabled: json["too_fast_enabled"],
+        timeEnabled: json["time_enabled"],
+        timeMin: json["time_min---"],
+      );
+
+  Map<String, dynamic> toJson() {
+    return {
+      'type': type,
+      'range_enabled': rangeEnabled,
+      'range_min': rangeMin,
+      'range_max': rangeMax,
+      'too_fast_enabled': tooFastEnabled,
+      'time_enabled': timeEnabled,
+      'time_min': timeMin,
+    };
+  }
 }
