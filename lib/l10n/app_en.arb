@@ -1,0 +1,9 @@
+{
+    "emailHint": "Email...",
+    "passHint": "Password...",
+    "login": "Login",
+    "loading": "Loading",
+    "failed": "Failed",
+    "success": "Success",
+    "tryAgain": "Try again"
+}

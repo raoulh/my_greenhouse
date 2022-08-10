@@ -6,6 +6,7 @@ import 'package:progress_state_button/progress_button.dart';
 import 'package:my_greenhouse/ui/widgets/logo.dart';
 import 'package:my_greenhouse/ui/widgets/background.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -91,14 +92,14 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                           children: [
                             editComponent(
                                 Icons.account_circle_outlined,
-                                'Email...',
+                                AppLocalizations.of(context).emailHint,
                                 false,
                                 true,
                                 emailCtrl,
                                 const <String>[AutofillHints.email]),
                             editComponent(
                                 Icons.lock_outline,
-                                'Password...',
+                                AppLocalizations.of(context).passHint,
                                 true,
                                 false,
                                 passCtrl,
@@ -106,20 +107,22 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                             ProgressButton.icon(
                                 iconedButtons: {
                                   ButtonState.idle: IconedButton(
-                                      text: "Login",
+                                      text: AppLocalizations.of(context).login,
                                       icon: const Icon(Icons.login,
                                           color: Colors.white),
                                       color: Colors.green.shade500),
                                   ButtonState.loading: IconedButton(
-                                      text: "Loading",
+                                      text:
+                                          AppLocalizations.of(context).loading,
                                       color: Colors.green.shade700),
                                   ButtonState.fail: IconedButton(
-                                      text: "Failed",
+                                      text: AppLocalizations.of(context).failed,
                                       icon: const Icon(Icons.cancel,
                                           color: Colors.white),
                                       color: Colors.red.shade300),
                                   ButtonState.success: IconedButton(
-                                      text: "Success",
+                                      text:
+                                          AppLocalizations.of(context).success,
                                       icon: const Icon(
                                         Icons.check_circle,
                                         color: Colors.white,

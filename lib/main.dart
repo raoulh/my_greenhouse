@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:my_greenhouse/routes/routes.dart';
@@ -68,7 +69,7 @@ class _MyAppState extends State<MyApp> {
         },
         locale: const Locale("fr", "FR"),
         localizationsDelegates: const [
-          //MyLocalizationsDelegate(),
+          AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
