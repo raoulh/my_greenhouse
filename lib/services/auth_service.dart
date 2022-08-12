@@ -32,6 +32,11 @@ class AuthService with ChangeNotifier {
   late StreamSubscription<String> _newTokenSub;
 
   AuthService() {
+    Push.instance.token.then((value) {
+      print("Initial Push token: $value");
+      _pushToken = value ?? "";
+    });
+
     _newTokenSub = Push.instance.onNewToken.listen((value) {
       print("Push token: $value");
       _pushToken = value;
@@ -58,6 +63,10 @@ class AuthService with ChangeNotifier {
 
     try {
       if (token == "demo_token") {
+        return;
+      }
+
+      if (_pushToken == "") {
         return;
       }
 
