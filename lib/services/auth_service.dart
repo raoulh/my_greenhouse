@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -7,6 +8,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:my_greenhouse/global/environment.dart';
 import 'package:my_greenhouse/models/models.dart';
 import 'package:my_greenhouse/services/failure.dart';
+import 'package:push/push.dart';
 
 class AuthService with ChangeNotifier {
   static const _storage = FlutterSecureStorage(
@@ -24,6 +26,69 @@ class AuthService with ChangeNotifier {
   set authenticated(bool val) {
     _authenticated = val;
     notifyListeners();
+  }
+
+  String _pushToken = "";
+  late StreamSubscription<String> _newTokenSub;
+
+  AuthService() {
+    _newTokenSub = Push.instance.onNewToken.listen((value) {
+      print("Push token: $value");
+      _pushToken = value;
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _newTokenSub.cancel();
+  }
+
+  Future<void> sendPushToken() async {
+    final url = '${Environment.apiUrl}/notif/id';
+    var tokenAuth = 'Bearer ';
+    final token = await AuthService.getToken();
+    final deviceId = await AppPrefs.getDeviceId();
+
+    if (token != null) {
+      tokenAuth += token;
+    } else {
+      return;
+    }
+
+    try {
+      if (token == "demo_token") {
+        return;
+      }
+
+      final data = {
+        'token': _pushToken,
+        'hw': Platform.isAndroid
+            ? 2
+            : Platform.isIOS
+                ? 1
+                : 0
+      };
+
+      final res = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Authorization': tokenAuth,
+          'X-Device-Id': deviceId,
+        },
+        body: jsonEncode(data),
+      );
+
+      if (res.statusCode != 200) {
+        print('Failure to connect to server');
+      }
+    } on SocketException {
+      print("sendPushToken failed");
+    } on HttpException {
+      print("sendPushToken failed");
+    } on FormatException {
+      print("sendPushToken failed");
+    }
   }
 
   static Future<String?> getToken() async {
@@ -61,6 +126,8 @@ class AuthService with ChangeNotifier {
           return false;
         }
         await _saveToken(loginResponse.token);
+
+        sendPushToken();
 
         return true;
       } else {
@@ -102,6 +169,7 @@ class AuthService with ChangeNotifier {
       if (loginResponse.error) {
         return false;
       }
+      sendPushToken();
       return true;
     } else {
       logout();

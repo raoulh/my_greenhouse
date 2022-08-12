@@ -12,6 +12,7 @@ import 'package:my_greenhouse/services/connectivity_provider.dart';
 import 'package:my_greenhouse/services/greenhouse_service.dart';
 import 'package:my_greenhouse/services/lifecycle_service.dart';
 import 'package:my_greenhouse/services/myfood_service.dart';
+import 'package:my_greenhouse/services/notif_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
@@ -34,10 +35,12 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late LifeCycleService lifeCycleService;
+  late NotifHandler notifHandler;
 
   @override
   void initState() {
     super.initState();
+    notifHandler = NotifHandler();
     lifeCycleService = LifeCycleService();
     WidgetsBinding.instance.addObserver(lifeCycleService);
   }
@@ -45,6 +48,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(lifeCycleService);
+    notifHandler.dispose();
     super.dispose();
   }
 
