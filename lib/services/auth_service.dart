@@ -32,6 +32,8 @@ class AuthService with ChangeNotifier {
   late StreamSubscription<String> _newTokenSub;
 
   AuthService() {
+    requestNotificationPermissions();
+
     Push.instance.token.then((value) {
       print("Initial Push token: $value");
       _pushToken = value ?? "";
@@ -47,6 +49,10 @@ class AuthService with ChangeNotifier {
   void dispose() {
     super.dispose();
     _newTokenSub.cancel();
+  }
+
+  void requestNotificationPermissions() async {
+    await Push.instance.requestPermission();
   }
 
   Future<void> sendPushToken() async {
