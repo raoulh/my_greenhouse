@@ -2,9 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:intl/intl.dart';
 import 'package:my_greenhouse/global/environment.dart';
 import 'package:my_greenhouse/models/models.dart';
 import 'package:my_greenhouse/services/failure.dart';
@@ -42,6 +43,10 @@ class AuthService with ChangeNotifier {
     _newTokenSub = Push.instance.onNewToken.listen((value) {
       print("Push token: $value");
       _pushToken = value;
+
+      if (authenticated) {
+        sendPushToken();
+      }
     });
   }
 
@@ -76,13 +81,17 @@ class AuthService with ChangeNotifier {
         return;
       }
 
+      String locale = Intl.getCurrentLocale();
+
       final data = {
         'token': _pushToken,
         'hw': Platform.isAndroid
             ? 2
             : Platform.isIOS
                 ? 1
-                : 0
+                : 0,
+        'locale': locale,
+        'dev': kDebugMode,
       };
 
       final res = await http.post(
@@ -90,6 +99,7 @@ class AuthService with ChangeNotifier {
         headers: {
           'Authorization': tokenAuth,
           'X-Device-Id': deviceId,
+          'Content-Type': 'application/json',
         },
         body: jsonEncode(data),
       );
@@ -117,7 +127,7 @@ class AuthService with ChangeNotifier {
   }
 
   Future<bool> login(String email, String password) async {
-    authenticated = true;
+    authenticated = false;
     final deviceId = await AppPrefs.getDeviceId();
     final data = {'username': email, 'pass': password, 'device_id': deviceId};
     final url = '${Environment.apiUrl}/auth/login';
@@ -133,8 +143,6 @@ class AuthService with ChangeNotifier {
           body: jsonEncode(data),
           headers: {'Content-Type': 'application/json'});
 
-      authenticated = false;
-
       if (resp.statusCode == 200) {
         final loginResponse = loginResponseFromJson(resp.body);
         if (loginResponse.error) {
@@ -143,6 +151,8 @@ class AuthService with ChangeNotifier {
         await _saveToken(loginResponse.token);
 
         sendPushToken();
+
+        authenticated = true;
 
         return true;
       } else {
@@ -158,6 +168,7 @@ class AuthService with ChangeNotifier {
   }
 
   Future<bool> isLoggedIn() async {
+    _authenticated = false;
     final token = await _getToken();
 
     if (token == "demo_token") {
@@ -184,7 +195,11 @@ class AuthService with ChangeNotifier {
       if (loginResponse.error) {
         return false;
       }
+
       sendPushToken();
+
+      _authenticated = true;
+
       return true;
     } else {
       logout();
