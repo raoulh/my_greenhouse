@@ -1,8 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:my_greenhouse/main.dart';
+import 'package:my_greenhouse/ui/widgets/error_dialog.dart';
 import 'package:push/push.dart';
 
-class NotifHandler {
+class NotifHandler with ChangeNotifier {
   late StreamSubscription<Map<String?, Object?>> _notifTapSub;
   late StreamSubscription<RemoteMessage> _notifMessageSub;
   late StreamSubscription<RemoteMessage> _notifBackgroundSub;
@@ -31,7 +35,27 @@ class NotifHandler {
           ' title: ${message.notification?.title.toString()}\n'
           ' body: ${message.notification?.body.toString()}\n'
           'RemoteMessage.Data: ${message.data}');
-      //messagesReceived.value += [message];
+      if (navigatorKey.currentContext != null) {
+        final String? msg = Platform.isIOS
+            ? message.notification?.title
+            : message.notification?.body;
+
+        if (msg == null) {
+          return;
+        }
+
+        showDialog(
+            context: navigatorKey.currentContext!,
+            builder: (BuildContext context) {
+              return ErrorDialog(
+                type: DialogTypes.warning,
+                title: "Alert",
+                message: msg,
+                buttonText: "Ok",
+                buttonFn: () => Navigator.pop(context),
+              );
+            });
+      }
     });
 
     _notifBackgroundSub = Push.instance.onBackgroundMessage.listen((message) {

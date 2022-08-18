@@ -89,6 +89,7 @@ class SettingsPage extends StatelessWidget {
                         context: context,
                         builder: (BuildContext context) {
                           return ErrorDialog(
+                            type: DialogTypes.error,
                             message: "Oops... the URL couldn't be opened!",
                             buttonText: "Close",
                             buttonFn: () => Navigator.pop(context),

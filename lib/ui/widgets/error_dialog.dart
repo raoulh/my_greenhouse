@@ -2,16 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+enum DialogTypes {
+  error,
+  warning,
+}
+
 class ErrorDialog extends StatelessWidget {
   final String message;
   final String buttonText;
+  final String? title;
   final void Function()? buttonFn;
+  final DialogTypes type;
 
   const ErrorDialog(
       {Key? key,
       required this.message,
       required this.buttonText,
-      required this.buttonFn})
+      required this.buttonFn,
+      this.title,
+      required this.type})
       : super(key: key);
 
   dialogContent(BuildContext context) {
@@ -27,14 +36,21 @@ class ErrorDialog extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min, // To make the card compact
         children: <Widget>[
-          SvgPicture.asset(height: 80, 'assets/error_bg.svg'),
+          SvgPicture.asset(
+            height: 80,
+            type == DialogTypes.error
+                ? 'assets/error_bg.svg'
+                : 'assets/warning_bg.svg',
+          ),
           const SizedBox(height: 10.0),
           Text(
-            "Error",
+            title ?? "Error",
             style: GoogleFonts.montserrat(
               fontSize: 24,
               fontWeight: FontWeight.w400,
-              color: const Color(0xffff2a2a),
+              color: type == DialogTypes.error
+                  ? const Color(0xffff2a2a)
+                  : const Color(0xffffc32a),
             ),
           ),
           const SizedBox(height: 16.0),
@@ -61,7 +77,10 @@ class ErrorDialog extends StatelessWidget {
                 style: ButtonStyle(
                   foregroundColor:
                       MaterialStateProperty.all<Color>(Colors.white),
-                  backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                      type == DialogTypes.error
+                          ? const Color(0xffff2a2a)
+                          : const Color(0xffffc32a)),
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18.0),

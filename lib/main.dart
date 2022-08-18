@@ -16,6 +16,7 @@ import 'package:my_greenhouse/services/notif_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
+final navigatorKey = GlobalKey<NavigatorState>();
 void main() {
   runApp(const MyApp());
   SystemChrome.setSystemUIOverlayStyle(
@@ -61,9 +62,11 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => MyfoodService()),
         ChangeNotifierProvider(create: (_) => lifeCycleService),
         ChangeNotifierProvider(create: (_) => ConnectivityProvider()),
+        ChangeNotifierProvider(create: (_) => notifHandler),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
+        navigatorKey: navigatorKey,
         title: 'MyFood App',
         initialRoute: 'loading',
         onGenerateRoute: CustomRoutes.getRoutes,

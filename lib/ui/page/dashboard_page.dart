@@ -10,6 +10,7 @@ import 'package:my_greenhouse/services/failure.dart';
 import 'package:my_greenhouse/services/greenhouse_service.dart';
 import 'package:my_greenhouse/services/lifecycle_service.dart';
 import 'package:my_greenhouse/services/myfood_service.dart';
+import 'package:my_greenhouse/services/notif_handler.dart';
 import 'package:my_greenhouse/ui/page/notif_settings_view.dart';
 import 'package:my_greenhouse/ui/widgets/appbar.dart';
 import 'package:my_greenhouse/ui/widgets/chart.dart';
@@ -87,6 +88,7 @@ class _DashboardPageState extends State<DashboardPage> {
           context: context,
           builder: (BuildContext context) {
             return ErrorDialog(
+              type: DialogTypes.error,
               message: e.toString(),
               buttonText: "Try again",
               buttonFn: () {
@@ -131,6 +133,7 @@ class _DashboardPageState extends State<DashboardPage> {
           context: context,
           builder: (BuildContext context) {
             return ErrorDialog(
+              type: DialogTypes.error,
               message: e.toString(),
               buttonText: "Try again",
               buttonFn: () {
