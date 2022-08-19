@@ -37,7 +37,7 @@ dependencies:
   progress_state_button: "^1.0.4"
   flutter_svg: ^1.1.0
   provider:
-  flutter_secure_storage: ^5.0.2
+  flutter_secure_storage: ^6.0.0
   http: ^0.13.4
   google_fonts: ^3.0.1
   font_awesome_flutter: ^10.1.0

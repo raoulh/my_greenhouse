@@ -14,7 +14,7 @@ import 'package:push/push.dart';
 class AuthService with ChangeNotifier {
   static const _storage = FlutterSecureStorage(
     iOptions: IOSOptions(
-      accessibility: IOSAccessibility.first_unlock,
+      accessibility: KeychainAccessibility.first_unlock,
       accountName: "greenhouse_storage",
     ),
     aOptions: AndroidOptions(
