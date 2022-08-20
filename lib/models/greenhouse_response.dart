@@ -96,12 +96,26 @@ class NotifSettingsResponse {
   });
 
   final NotifType type;
-  final bool rangeEnabled;
-  final double rangeMin;
-  final double rangeMax;
-  final bool tooFastEnabled;
-  final bool timeEnabled;
-  final double timeMin;
+  bool rangeEnabled;
+  double rangeMin;
+  double rangeMax;
+  bool tooFastEnabled;
+  bool timeEnabled;
+  Duration timeMin;
+
+  String getUnit() {
+    if (type == NotifType.pH) {
+      return "pH";
+    } else if (type == NotifType.humidity) {
+      return "%";
+    } else {
+      return "°";
+    }
+  }
+
+  String getFormatedTimeMin() {
+    return "${timeMin.inHours} hours";
+  }
 
   factory NotifSettingsResponse.empty(NotifType t) => NotifSettingsResponse(
         type: t,
@@ -110,29 +124,29 @@ class NotifSettingsResponse {
         rangeMax: 0,
         tooFastEnabled: false,
         timeEnabled: false,
-        timeMin: 0,
+        timeMin: const Duration(),
       );
 
   factory NotifSettingsResponse.fromJson(Map<String, dynamic> json) =>
       NotifSettingsResponse(
-        type: json["type"],
+        type: NotifType.getByValue(json["type"]),
         rangeEnabled: json["range_enabled"],
         rangeMin: JsonConv.toDouble(json["range_min"]),
         rangeMax: JsonConv.toDouble(json["range_max"]),
         tooFastEnabled: json["too_fast_enabled"],
         timeEnabled: json["time_enabled"],
-        timeMin: json["time_min---"],
+        timeMin: JsonConv.toDuration(json["time_min"]),
       );
 
   Map<String, dynamic> toJson() {
     return {
-      'type': type,
+      'type': type.value,
       'range_enabled': rangeEnabled,
       'range_min': rangeMin,
       'range_max': rangeMax,
       'too_fast_enabled': tooFastEnabled,
       'time_enabled': timeEnabled,
-      'time_min': timeMin,
+      'time_min': JsonConv.fromDuration(timeMin),
     };
   }
 }

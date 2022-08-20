@@ -22,4 +22,17 @@ class JsonConv {
     }
     return DateTime.now();
   }
+
+  static Duration toDuration(data) {
+    if (data == null) {
+      return const Duration();
+    }
+
+    double ns = toDouble(data) / 1000.0;
+    return Duration(microseconds: ns.toInt());
+  }
+
+  static int fromDuration(Duration dur) {
+    return dur.inMicroseconds * 1000;
+  }
 }

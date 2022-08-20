@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_greenhouse/services/auth_service.dart';
+import 'package:my_greenhouse/ui/widgets/appbar.dart';
 import 'package:my_greenhouse/ui/widgets/error_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-
-import '../widgets/appbar.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -26,8 +26,8 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const MainAppBar(
-        title: "About",
+      appBar: MainAppBar(
+        title: AppLocalizations.of(context).about,
         showSettings: false,
       ),
       backgroundColor: Colors.white,
@@ -68,7 +68,7 @@ class SettingsPage extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                "Licenses and code available here:",
+                AppLocalizations.of(context).settingsLicenses,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w200,
@@ -90,8 +90,9 @@ class SettingsPage extends StatelessWidget {
                         builder: (BuildContext context) {
                           return ErrorDialog(
                             type: DialogTypes.error,
-                            message: "Oops... the URL couldn't be opened!",
-                            buttonText: "Close",
+                            message: AppLocalizations.of(context)
+                                .oopsUrlFailedToOpen,
+                            buttonText: AppLocalizations.of(context).close,
                             buttonFn: () => Navigator.pop(context),
                           );
                         });
@@ -112,7 +113,7 @@ class SettingsPage extends StatelessWidget {
                   onPressed: () {
                     _logout(context);
                   },
-                  child: const Text('Logout'),
+                  child: Text(AppLocalizations.of(context).logout),
                 ),
               if (Platform.isAndroid)
                 ElevatedButton(
@@ -120,7 +121,7 @@ class SettingsPage extends StatelessWidget {
                   onPressed: () {
                     _logout(context);
                   },
-                  child: const Text('Logout'),
+                  child: Text(AppLocalizations.of(context).logout),
                 ),
             ],
           ),

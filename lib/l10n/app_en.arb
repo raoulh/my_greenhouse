@@ -1,9 +1,43 @@
 {
+    "about": "About",
     "emailHint": "Email...",
     "passHint": "Password...",
     "login": "Login",
     "loading": "Loading",
+    "loadingDots": "Loading...",
     "failed": "Failed",
     "success": "Success",
-    "tryAgain": "Try again"
+    "tryAgain": "Try again",
+    "close": "Close",
+    "logout": "Logout",
+    "help": "Help",
+
+    "oopsNoInternet": "Oops, no internet connection",
+    "noInternetDesc": "Make sure wifi or cellular data is turned on and then try again",
+
+    "evolutionPh": "Evolution of the pH",
+    "average1h": "Average 1h",
+    "average24h": "Average 24h",
+    "waterTemp": "Water temperature",
+    "airTemp": "Air temperature",
+    "humidity": "Humidity",
+
+    "settingsLicenses": "Licenses and code available here:",
+    "oopsUrlFailedToOpen": "Oops... the URL couldn't be opened!",
+
+    "notifSettingsTitle": "Notification Settings",
+    "outOfRange": "Out of range",
+    "helpOutOfRange": "When this option is enabled, a notification will be sent when the value goes out of range",
+    "enable": "Enable",
+    "minimumValue": "Minimum value",
+    "maximumValue": "Maximum value",
+    "changesTooFast": "Changes too fast",
+    "helpChangesTooFast": "When this option is enabled, a notification will be sent when the value changes too quickly in a small amount of time",
+    "updateTime": "No updates for some time",
+    "helpUpdateTime": "When this option is enabled, a notification will be sent when no data are available for more than the selected time",
+    "durationUpdateTime": "Duration without updates",
+
+    "errorConnectError": "Failure to connect to server",
+    "errorLoadFailed": "Unable to load data",
+    "errorBadResponse": "Bad response format"
 }

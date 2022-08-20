@@ -1,9 +1,43 @@
 {
+    "about": "A propos",
     "emailHint": "Email...",
     "passHint": "Mot de passe...",
     "login": "Connection",
     "loading": "Chargement",
+    "loadingDots": "Chargement...",
     "failed": "Echec",
     "success": "Succès",
-    "tryAgain": "Essayez à nouveau"
+    "tryAgain": "Essayez à nouveau",
+    "close": "Fermer",
+    "logout": "Déconnexion",
+    "help": "Aide",
+
+    "oopsNoInternet": "Oups, aucune connection à Internet",
+    "noInternetDesc": "Vérifiez qu'une connection Wifi ou cellulaire est active et veuillez réessayer",
+
+    "evolutionPh": "Evolution du pH",
+    "average1h": "Moyenne 1h",
+    "average24h": "Moyenne 24h",
+    "waterTemp": "Temperature de l'eau",
+    "airTemp": "Temperature de l'air",
+    "humidity": "Humidité",
+
+    "settingsLicenses": "Licenses et code disponible ici:",
+    "oopsUrlFailedToOpen": "Oups... l'URL n'a pas pu être ouverte!",
+
+    "notifSettingsTitle": "Paramètres de notification",
+    "outOfRange": "Hors de la plage",
+    "helpOutOfRange": "Quand cette option est activée, une notification est envoyée lorsque la valeur est hors de la plage choisie",
+    "enable": "Activé",
+    "minimumValue": "Valeur minimum",
+    "maximumValue": "Valeur maximum",
+    "changesTooFast": "Changement trop rapide",
+    "helpChangesTooFast": "Quand cette option est activée, une notification est envoyée lorsque la valeur change trop rapidement dans un court laps de temps",
+    "updateTime": "Aucune mise à jour pendant longtemps",
+    "helpUpdateTime": "Quand cette option est activée, une notification est envoyée lorsqu'aucune donnée n'a été recu pendant le laps de temps configuré",
+    "durationUpdateTime": "Durée sans mise à jour",
+
+    "errorConnectError": "Echec lors de la connection au serveur",
+    "errorLoadFailed": "Impossible de charger les données",
+    "errorBadResponse": "Mauvais format de réponse"
 }

@@ -10,13 +10,13 @@ import 'package:my_greenhouse/services/failure.dart';
 import 'package:my_greenhouse/services/greenhouse_service.dart';
 import 'package:my_greenhouse/services/lifecycle_service.dart';
 import 'package:my_greenhouse/services/myfood_service.dart';
-import 'package:my_greenhouse/services/notif_handler.dart';
 import 'package:my_greenhouse/ui/page/notif_settings_view.dart';
 import 'package:my_greenhouse/ui/widgets/appbar.dart';
 import 'package:my_greenhouse/ui/widgets/chart.dart';
 import 'package:my_greenhouse/ui/widgets/error_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({Key? key}) : super(key: key);
@@ -90,7 +90,7 @@ class _DashboardPageState extends State<DashboardPage> {
             return ErrorDialog(
               type: DialogTypes.error,
               message: e.toString(),
-              buttonText: "Try again",
+              buttonText: AppLocalizations.of(context).tryAgain,
               buttonFn: () {
                 Navigator.pop(context);
                 _loadInitialData();
@@ -135,7 +135,7 @@ class _DashboardPageState extends State<DashboardPage> {
             return ErrorDialog(
               type: DialogTypes.error,
               message: e.toString(),
-              buttonText: "Try again",
+              buttonText: AppLocalizations.of(context).tryAgain,
               buttonFn: () {
                 Navigator.pop(context);
                 _refreshData();
@@ -226,10 +226,10 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               const SizedBox(height: 10),
               _ChartSection(
-                title: "Evolution of the pH",
-                titleBox1: "Average 1h",
+                title: AppLocalizations.of(context).evolutionPh,
+                titleBox1: AppLocalizations.of(context).average1h,
                 valueBox1: _phData().hourAverageValue.toString(),
-                titleBox2: "Average 24h",
+                titleBox2: AppLocalizations.of(context).average24h,
                 valueBox2: _phData().dayAverageValue.toString(),
                 chartData: phData,
                 resetZoom: resetZoom,
@@ -237,39 +237,68 @@ class _DashboardPageState extends State<DashboardPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const NotifSettingsPage()),
+                        builder: (context) => const NotifSettingsPage(
+                              notifType: NotifType.pH,
+                            )),
                   );
                 },
               ),
               const SizedBox(height: 10),
               _ChartSection(
-                title: "Water temperature",
-                titleBox1: "Average 1h",
+                title: AppLocalizations.of(context).waterTemp,
+                titleBox1: AppLocalizations.of(context).average1h,
                 valueBox1: _waterTempData().hourAverageValue.toString(),
-                titleBox2: "Average 24h",
+                titleBox2: AppLocalizations.of(context).average24h,
                 valueBox2: _waterTempData().dayAverageValue.toString(),
                 chartData: waterData,
                 resetZoom: resetZoom,
+                onMorePressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const NotifSettingsPage(
+                              notifType: NotifType.waterTemp,
+                            )),
+                  );
+                },
               ),
               const SizedBox(height: 10),
               _ChartSection(
-                title: "Air temperature",
-                titleBox1: "Average 1h",
+                title: AppLocalizations.of(context).airTemp,
+                titleBox1: AppLocalizations.of(context).average1h,
                 valueBox1: _airTempData().hourAverageValue.toString(),
-                titleBox2: "Average 24h",
+                titleBox2: AppLocalizations.of(context).average24h,
                 valueBox2: _airTempData().dayAverageValue.toString(),
                 chartData: airData,
                 resetZoom: resetZoom,
+                onMorePressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const NotifSettingsPage(
+                              notifType: NotifType.airTemp,
+                            )),
+                  );
+                },
               ),
               const SizedBox(height: 10),
               _ChartSection(
-                title: "Humidity",
-                titleBox1: "Average 1h",
+                title: AppLocalizations.of(context).humidity,
+                titleBox1: AppLocalizations.of(context).average1h,
                 valueBox1: _humidityData().hourAverageValue.toString(),
-                titleBox2: "Average 24h",
+                titleBox2: AppLocalizations.of(context).average24h,
                 valueBox2: _humidityData().dayAverageValue.toString(),
                 chartData: humiData,
                 resetZoom: resetZoom,
+                onMorePressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const NotifSettingsPage(
+                              notifType: NotifType.humidity,
+                            )),
+                  );
+                },
               ),
               const SizedBox(height: 20),
             ],

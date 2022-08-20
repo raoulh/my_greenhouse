@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class NoInternetPage extends StatelessWidget {
   const NoInternetPage({Key? key}) : super(key: key);
@@ -18,7 +19,7 @@ class NoInternetPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(40, 0, 40, 0),
               child: Text(
-                "Oops, no internet connection",
+                AppLocalizations.of(context).oopsNoInternet,
                 style: GoogleFonts.montserrat(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
@@ -30,7 +31,7 @@ class NoInternetPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(40, 0, 40, 0),
               child: Text(
-                "Make sure wifi or cellular data is turned on and then try again",
+                AppLocalizations.of(context).noInternetDesc,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
