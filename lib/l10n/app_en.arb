@@ -11,6 +11,8 @@
     "close": "Close",
     "logout": "Logout",
     "help": "Help",
+    "cancel": "Cancel",
+    "save": "Save",
 
     "oopsNoInternet": "Oops, no internet connection",
     "noInternetDesc": "Make sure wifi or cellular data is turned on and then try again",

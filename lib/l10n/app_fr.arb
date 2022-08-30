@@ -11,6 +11,8 @@
     "close": "Fermer",
     "logout": "Déconnexion",
     "help": "Aide",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
 
     "oopsNoInternet": "Oups, aucune connection à Internet",
     "noInternetDesc": "Vérifiez qu'une connection Wifi ou cellulaire est active et veuillez réessayer",
