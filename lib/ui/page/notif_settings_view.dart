@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:my_greenhouse/models/greenhouse_response.dart';
 import 'package:my_greenhouse/services/greenhouse_service.dart';
 import 'package:my_greenhouse/ui/widgets/appbar.dart';
@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:numberpicker/numberpicker.dart';
+import 'package:my_greenhouse/ui/page/decimal_input_page.dart';
 
 class NotifSettingsPage extends StatefulWidget {
   final NotifType notifType;
@@ -272,21 +273,24 @@ class _NotifSettingsPageState extends State<NotifSettingsPage> {
     );
   }
 
-  void _promptDecimal(BuildContext context, currentVal, minVal, maxVal) {
-    if (Platform.isAndroid) {
+  void _promptDecimal(
+      BuildContext context, double currentVal, double minVal, double maxVal) {
+    //if (Platform.isAndroid) {
+    if (Platform.isIOS) {
       _promptAndroidDecimal(context, currentVal, minVal, maxVal);
     } else {
       _promptIOSDecimal(context, currentVal, minVal, maxVal);
     }
   }
 
-  void _promptAndroidDecimal(BuildContext context, currentVal, minVal, maxVal) {
+  void _promptAndroidDecimal(
+      BuildContext context, double currentVal, double minVal, double maxVal) {
     var curr = currentVal;
 
     var numPicker = DecimalNumberPicker(
       value: curr,
-      minValue: minVal,
-      maxValue: maxVal,
+      minValue: minVal.toInt(),
+      maxValue: maxVal.toInt(),
       decimalPlaces: 2,
       onChanged: (value) {
         curr = value;
@@ -314,37 +318,17 @@ class _NotifSettingsPageState extends State<NotifSettingsPage> {
     );
   }
 
-  void _promptIOSDecimal(BuildContext context, currentVal, minVal, maxVal) {
-    var curr = currentVal;
-
-    var numPicker = DecimalNumberPicker(
-      value: curr,
-      minValue: minVal,
-      maxValue: maxVal,
-      decimalPlaces: 2,
-      onChanged: (value) {
-        curr = value;
-      },
-    );
-
-    showDialog(
+  void _promptIOSDecimal(
+      BuildContext context, double currentVal, double minVal, double maxVal) {
+    showCupertinoModalBottomSheet(
+      expand: false,
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Title"),
-          content: numPicker,
-          actions: <Widget>[
-            TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(AppLocalizations.of(context).cancel)),
-            TextButton(
-                onPressed: () => {
-                      //TODO
-                    },
-                child: Text(AppLocalizations.of(context).save)),
-          ],
-        );
-      },
+      backgroundColor: Colors.transparent,
+      builder: (context) => DecimalInputModal(
+        currentValue: currentVal,
+        minValue: minVal,
+        maxValue: maxVal,
+      ),
     );
   }
 }
