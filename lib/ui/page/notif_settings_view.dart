@@ -7,13 +7,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:my_greenhouse/models/greenhouse_response.dart';
 import 'package:my_greenhouse/services/greenhouse_service.dart';
+import 'package:my_greenhouse/ui/page/decimal_input_page_android.dart';
 import 'package:my_greenhouse/ui/widgets/appbar.dart';
 import 'package:my_greenhouse/ui/widgets/error_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:numberpicker/numberpicker.dart';
-import 'package:my_greenhouse/ui/page/decimal_input_page.dart';
+import 'package:my_greenhouse/ui/page/decimal_input_page_ios.dart';
 
 class NotifSettingsPage extends StatefulWidget {
   final NotifType notifType;
@@ -165,13 +165,13 @@ class _NotifSettingsPageState extends State<NotifSettingsPage> {
               title: Text(AppLocalizations.of(context).minimumValue),
               leading: const Icon(Icons.arrow_left_outlined),
               value: Text("${res.rangeMin} ${res.getUnit()}"),
-              onPressed: (BuildContext context) =>
-                  _promptDecimal(context, res.rangeMin, 0, 100),
+              onPressed: (context) => _minValueEdit(context, res),
             ),
             SettingsTile.navigation(
               title: Text(AppLocalizations.of(context).maximumValue),
               leading: const Icon(Icons.arrow_right_outlined),
               value: Text("${res.rangeMax} ${res.getUnit()}"),
+              onPressed: (context) => _maxValueEdit(context, res),
             ),
           ],
         ),
@@ -273,61 +273,110 @@ class _NotifSettingsPageState extends State<NotifSettingsPage> {
     );
   }
 
-  void _promptDecimal(
-      BuildContext context, double currentVal, double minVal, double maxVal) {
-    //if (Platform.isAndroid) {
-    if (Platform.isIOS) {
-      _promptAndroidDecimal(context, currentVal, minVal, maxVal);
+  void _minValueEdit(BuildContext context, res) {
+    double min = 0, max = 0;
+    String help = "";
+
+    if (res.type == NotifType.pH) {
+      min = 0;
+      max = 10;
+      help = AppLocalizations.of(context).helpRangePHMin;
+    } else if (res.type == NotifType.waterTemp) {
+      min = 0;
+      max = 50;
+      help = AppLocalizations.of(context).helpTempWaterMin;
+    } else if (res.type == NotifType.airTemp) {
+      min = 0;
+      max = 50;
+      help = AppLocalizations.of(context).helpTempAirMin;
+    } else if (res.type == NotifType.humidity) {
+      min = 0;
+      max = 100;
+      help = AppLocalizations.of(context).helpHumidityMin;
+    }
+
+    _promptDecimal(context, res.rangeMin, min, max, help, (newValue) {
+      setState(() {
+        nextValues.rangeMin = newValue;
+      });
+      _sendValues();
+    });
+  }
+
+  void _maxValueEdit(BuildContext context, res) {
+    double min = 0, max = 0;
+    String help = "";
+
+    if (res.type == NotifType.pH) {
+      min = 0;
+      max = 10;
+      help = AppLocalizations.of(context).helpRangePHMax;
+    } else if (res.type == NotifType.waterTemp) {
+      min = 0;
+      max = 50;
+      help = AppLocalizations.of(context).helpTempWaterMax;
+    } else if (res.type == NotifType.airTemp) {
+      min = 0;
+      max = 50;
+      help = AppLocalizations.of(context).helpTempAirMax;
+    } else if (res.type == NotifType.humidity) {
+      min = 0;
+      max = 100;
+      help = AppLocalizations.of(context).helpHumidityMax;
+    }
+
+    _promptDecimal(context, res.rangeMax, min, max, help, (newValue) {
+      setState(() {
+        nextValues.rangeMax = newValue;
+      });
+      _sendValues();
+    });
+  }
+
+  void _promptDecimal(BuildContext context, double currentVal, double minVal,
+      double maxVal, String help, ValueChanged<double> onSubmit) {
+    if (Platform.isAndroid) {
+      //if (Platform.isIOS) {
+      _promptAndroidDecimal(
+          context, currentVal, minVal, maxVal, help, onSubmit);
     } else {
-      _promptIOSDecimal(context, currentVal, minVal, maxVal);
+      _promptIOSDecimal(context, currentVal, minVal, maxVal, help, onSubmit);
     }
   }
 
   void _promptAndroidDecimal(
-      BuildContext context, double currentVal, double minVal, double maxVal) {
-    var curr = currentVal;
-
-    var numPicker = DecimalNumberPicker(
-      value: curr,
-      minValue: minVal.toInt(),
-      maxValue: maxVal.toInt(),
-      decimalPlaces: 2,
-      onChanged: (value) {
-        curr = value;
-      },
-    );
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Title"),
-          content: numPicker,
-          actions: <Widget>[
-            TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(AppLocalizations.of(context).cancel)),
-            TextButton(
-                onPressed: () => {
-                      //TODO
-                    },
-                child: Text(AppLocalizations.of(context).save)),
-          ],
-        );
-      },
-    );
-  }
-
-  void _promptIOSDecimal(
-      BuildContext context, double currentVal, double minVal, double maxVal) {
-    showCupertinoModalBottomSheet(
+      BuildContext context,
+      double currentVal,
+      double minVal,
+      double maxVal,
+      String help,
+      ValueChanged<double> onSubmit) {
+    showMaterialModalBottomSheet(
       expand: false,
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => DecimalInputModal(
+      builder: (context) => DecimalInputModalAndroid(
         currentValue: currentVal,
         minValue: minVal,
         maxValue: maxVal,
+        help: help,
+        onSubmit: onSubmit,
+      ),
+    );
+  }
+
+  void _promptIOSDecimal(BuildContext context, double currentVal, double minVal,
+      double maxVal, String help, ValueChanged<double> onSubmit) {
+    showCupertinoModalBottomSheet(
+      expand: true,
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DecimalInputModalIOS(
+        currentValue: currentVal,
+        minValue: minVal,
+        maxValue: maxVal,
+        help: help,
+        onSubmit: onSubmit,
       ),
     );
   }

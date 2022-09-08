@@ -13,6 +13,7 @@
     "help": "Help",
     "cancel": "Cancel",
     "save": "Save",
+    "edit": "Edit",
 
     "oopsNoInternet": "Oops, no internet connection",
     "noInternetDesc": "Make sure wifi or cellular data is turned on and then try again",
@@ -41,5 +42,17 @@
 
     "errorConnectError": "Failure to connect to server",
     "errorLoadFailed": "Unable to load data",
-    "errorBadResponse": "Bad response format"
+    "errorBadResponse": "Bad response format",
+
+    "helpRangePHMin": "Enter the new minimal value for range checking of the pH",
+    "helpRangePHMax": "Enter the new maximal value for range checking of the pH",
+    "helpTempWaterMin": "Enter the new minimal value for range checking of the water temperature",
+    "helpTempWaterMax": "Enter the new maximal value for range checking of the water temperature",
+    "helpTempAirMin": "Enter the new minimal value for range checking of the air temperature",
+    "helpTempAirMax": "Enter the new maximal value for range checking of the air temperature",
+    "helpHumidityMin": "Enter the new minimal value for range checking of the humidity percentage",
+    "helpHumidityMax": "Enter the new maximal value for range checking of the humidity percentage",
+
+    "editValueText": "Enter a value",
+    "editValueError": "Bad value"
 }

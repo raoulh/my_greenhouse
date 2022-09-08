@@ -13,6 +13,7 @@
     "help": "Aide",
     "cancel": "Annuler",
     "save": "Enregistrer",
+    "edit": "Editer",
 
     "oopsNoInternet": "Oups, aucune connection à Internet",
     "noInternetDesc": "Vérifiez qu'une connection Wifi ou cellulaire est active et veuillez réessayer",
@@ -41,5 +42,17 @@
 
     "errorConnectError": "Echec lors de la connection au serveur",
     "errorLoadFailed": "Impossible de charger les données",
-    "errorBadResponse": "Mauvais format de réponse"
+    "errorBadResponse": "Mauvais format de réponse",
+
+    "helpRangePHMin": "Veuillez entrer la valeur minimum pour la vérification de la plage de pH",
+    "helpRangePHMax": "Veuillez entrer la valeur maximum pour la vérification de la plage de pH",
+    "helpTempWaterMin": "Veuillez entrer la valeur minimum pour la vérification de la plage de température de l'eau",
+    "helpTempWaterMax": "Veuillez entrer la valeur maximum pour la vérification de la plage de température de l'eau",
+    "helpTempAirMin": "Veuillez entrer la valeur minimum pour la vérification de la plage de température de l'air",
+    "helpTempAirMax": "Veuillez entrer la valeur maximum pour la vérification de la plage de température de l'air",
+    "helpHumidityMin": "Veuillez entrer la valeur minimum pour la vérification de la plage d'humidité",
+    "helpHumidityMax": "Veuillez entrer la valeur maximum pour la vérification de la plage d'humidité",
+
+    "editValueText": "Entrez une valeur",
+    "editValueError": "Mauvaise valeur"
 }
