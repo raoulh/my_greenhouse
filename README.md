@@ -1,16 +1,12 @@
 # my_greenhouse
 
-A new Flutter project.
+iOS and Android app for the [MyFood](https://myfood.eu) greenhouse
 
-## Getting Started
+Powered by Flutter!
 
-This project is a starting point for a Flutter application.
+## Info
 
-A few resources to get you started if this is your first Flutter project:
+This project is the frontend app that uses both the myfood API and a backend that I run to host feature not available with official API (mainly native push notifications).
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+For help please open an issue here, or contact me on the MyFood Teams.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
