@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:my_greenhouse/ui/widgets/decimal_input_formater.dart';
 
 class DecimalInputModalIOS extends StatefulWidget {
   final double currentValue;
@@ -126,17 +127,7 @@ class _DecimalInputModalIOSState extends State<DecimalInputModalIOS> {
                   controller: _controller,
                   maxLength: 10,
                   autofocus: true,
-                  onSubmitted: (value) {
-                    if (!_isValid) {
-                      return;
-                    }
-
-                    if (_currentValue != null && widget.onSubmit != null) {
-                      widget.onSubmit!(_currentValue!);
-                    }
-
-                    Navigator.pop(context);
-                  },
+                  onSubmitted: (value) => _submitValue(value),
                   onChanged: (value) {
                     setState(() {
                       _isValid = _isValueValid(value);
@@ -145,17 +136,39 @@ class _DecimalInputModalIOSState extends State<DecimalInputModalIOS> {
                   enabled: true,
                   textInputAction: TextInputAction.done,
                   textAlign: TextAlign.center,
-                  keyboardType: TextInputType.number,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   decoration: _isValid
                       ? _kDefaultBorderDecoration
                       : _kErrorBorderDecoration,
+                  inputFormatters: [
+                    DecimalTextInputFormatter(),
+                  ],
                 ),
+              ),
+              const SizedBox(height: 30),
+              CupertinoButton.filled(
+                onPressed: () => _submitValue(_controller.text),
+                child: Text(AppLocalizations.of(context).save),
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  void _submitValue(value) {
+    if (!_isValid) {
+      return;
+    }
+
+    if (_currentValue != null && widget.onSubmit != null) {
+      widget.onSubmit!(_currentValue!);
+    }
+
+    Navigator.pop(context);
   }
 
   bool _isValueValid(String value) {
