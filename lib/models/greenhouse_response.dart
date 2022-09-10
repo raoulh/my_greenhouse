@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:my_greenhouse/models/json_conv.dart';
 import 'package:my_greenhouse/services/greenhouse_service.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 GreenhouseResponse greenhouseResponseFromJson(String str) =>
     GreenhouseResponse.fromJson(json.decode(str));
@@ -113,8 +115,8 @@ class NotifSettingsResponse {
     }
   }
 
-  String getFormatedTimeMin() {
-    return "${timeMin.inHours} hours";
+  String getFormatedTimeMin(BuildContext context) {
+    return AppLocalizations.of(context).unitHours(timeMin.inHours);
   }
 
   factory NotifSettingsResponse.empty(NotifType t) => NotifSettingsResponse(

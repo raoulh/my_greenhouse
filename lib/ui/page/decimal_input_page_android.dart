@@ -5,8 +5,9 @@ class DecimalInputModalAndroid extends StatefulWidget {
   final double currentValue;
   final double minValue;
   final double maxValue;
-  final ValueChanged<double>? onSubmit;
+  final ValueChanged<num>? onSubmit;
   final String help;
+  final bool? hasDecimals;
 
   const DecimalInputModalAndroid({
     Key? key,
@@ -15,6 +16,7 @@ class DecimalInputModalAndroid extends StatefulWidget {
     required this.maxValue,
     this.onSubmit,
     required this.help,
+    this.hasDecimals,
   }) : super(key: key);
 
   @override
@@ -25,16 +27,31 @@ class DecimalInputModalAndroid extends StatefulWidget {
 class _DecimalInputModalAndroidState extends State<DecimalInputModalAndroid> {
   final _controller = TextEditingController();
   var _isValid = true;
-  double? _currentValue;
+  num? _currentValue;
+  late final bool _hasDecimals;
 
   @override
   void initState() {
     super.initState();
 
-    _controller.text = widget.currentValue.toString();
+    if (widget.hasDecimals != null) {
+      _hasDecimals = widget.hasDecimals!;
+    } else {
+      _hasDecimals = false;
+    }
+
+    num val;
+
+    if (_hasDecimals) {
+      val = widget.currentValue;
+    } else {
+      val = widget.currentValue.toInt();
+    }
+
+    _controller.text = val.toString();
     _controller.selection = TextSelection(
       baseOffset: 0,
-      extentOffset: widget.currentValue.toString().length,
+      extentOffset: _controller.text.length,
     );
   }
 
@@ -100,13 +117,23 @@ class _DecimalInputModalAndroidState extends State<DecimalInputModalAndroid> {
 
   bool _isValueValid(String value) {
     try {
-      double v = double.parse(value);
+      if (_hasDecimals) {
+        double v = double.parse(value);
 
-      if (v < widget.minValue || v > widget.maxValue) {
-        return false;
+        if (v < widget.minValue || v > widget.maxValue) {
+          return false;
+        }
+
+        _currentValue = v;
+      } else {
+        int v = int.parse(value);
+
+        if (v < widget.minValue || v > widget.maxValue) {
+          return false;
+        }
+
+        _currentValue = v;
       }
-
-      _currentValue = v;
     } on FormatException {
       return false;
     }

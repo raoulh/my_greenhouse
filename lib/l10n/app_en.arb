@@ -52,7 +52,15 @@
     "helpTempAirMax": "Enter the new maximal value for range checking of the air temperature",
     "helpHumidityMin": "Enter the new minimal value for range checking of the humidity percentage",
     "helpHumidityMax": "Enter the new maximal value for range checking of the humidity percentage",
+    "helpTimeout": "Enter the duration in hours after which a notification will be sent",
 
     "editValueText": "Enter a value",
-    "editValueError": "Bad value"
+    "editValueError": "Bad value",
+
+    "unitHours": "{hours} hours",
+    "@unitHours": {
+        "placeholders": {
+            "hours": {}
+        }
+    }
 }

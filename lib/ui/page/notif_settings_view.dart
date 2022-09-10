@@ -238,7 +238,8 @@ class _NotifSettingsPageState extends State<NotifSettingsPage> {
             SettingsTile.navigation(
               title: Text(AppLocalizations.of(context).durationUpdateTime),
               leading: const Icon(Icons.history_rounded),
-              value: Text(res.getFormatedTimeMin()),
+              value: Text(res.getFormatedTimeMin(context)),
+              onPressed: (context) => _timeValueEdit(context, res),
             ),
           ],
         ),
@@ -295,9 +296,9 @@ class _NotifSettingsPageState extends State<NotifSettingsPage> {
       help = AppLocalizations.of(context).helpHumidityMin;
     }
 
-    _promptDecimal(context, res.rangeMin, min, max, help, (newValue) {
+    _promptDecimal(context, res.rangeMin, min, max, help, true, (newValue) {
       setState(() {
-        nextValues.rangeMin = newValue;
+        nextValues.rangeMin = newValue.toDouble();
       });
       _sendValues();
     });
@@ -325,22 +326,43 @@ class _NotifSettingsPageState extends State<NotifSettingsPage> {
       help = AppLocalizations.of(context).helpHumidityMax;
     }
 
-    _promptDecimal(context, res.rangeMax, min, max, help, (newValue) {
+    _promptDecimal(context, res.rangeMax, min, max, help, true, (newValue) {
       setState(() {
-        nextValues.rangeMax = newValue;
+        nextValues.rangeMax = newValue.toDouble();
       });
       _sendValues();
     });
   }
 
-  void _promptDecimal(BuildContext context, double currentVal, double minVal,
-      double maxVal, String help, ValueChanged<double> onSubmit) {
+  void _timeValueEdit(BuildContext context, res) {
+    double min = 1, max = 100;
+    String help = AppLocalizations.of(context).helpTimeout;
+
+    _promptDecimal(
+        context, res.timeMin.inHours.toDouble(), min, max, help, false,
+        (newValue) {
+      setState(() {
+        nextValues.timeMin = Duration(hours: newValue.toInt());
+      });
+      _sendValues();
+    });
+  }
+
+  void _promptDecimal(
+      BuildContext context,
+      double currentVal,
+      double minVal,
+      double maxVal,
+      String help,
+      bool hasDecimals,
+      ValueChanged<num> onSubmit) {
     if (Platform.isAndroid) {
       //if (Platform.isIOS) {
       _promptAndroidDecimal(
-          context, currentVal, minVal, maxVal, help, onSubmit);
+          context, currentVal, minVal, maxVal, help, hasDecimals, onSubmit);
     } else {
-      _promptIOSDecimal(context, currentVal, minVal, maxVal, help, onSubmit);
+      _promptIOSDecimal(
+          context, currentVal, minVal, maxVal, help, hasDecimals, onSubmit);
     }
   }
 
@@ -350,7 +372,8 @@ class _NotifSettingsPageState extends State<NotifSettingsPage> {
       double minVal,
       double maxVal,
       String help,
-      ValueChanged<double> onSubmit) {
+      bool hasDecimals,
+      ValueChanged<num> onSubmit) {
     showMaterialModalBottomSheet(
       expand: false,
       context: context,
@@ -361,12 +384,19 @@ class _NotifSettingsPageState extends State<NotifSettingsPage> {
         maxValue: maxVal,
         help: help,
         onSubmit: onSubmit,
+        hasDecimals: hasDecimals,
       ),
     );
   }
 
-  void _promptIOSDecimal(BuildContext context, double currentVal, double minVal,
-      double maxVal, String help, ValueChanged<double> onSubmit) {
+  void _promptIOSDecimal(
+      BuildContext context,
+      double currentVal,
+      double minVal,
+      double maxVal,
+      String help,
+      bool hasDecimals,
+      ValueChanged<num> onSubmit) {
     showCupertinoModalBottomSheet(
       expand: true,
       context: context,
@@ -377,6 +407,7 @@ class _NotifSettingsPageState extends State<NotifSettingsPage> {
         maxValue: maxVal,
         help: help,
         onSubmit: onSubmit,
+        hasDecimals: hasDecimals,
       ),
     );
   }

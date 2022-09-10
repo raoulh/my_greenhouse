@@ -52,7 +52,10 @@
     "helpTempAirMax": "Veuillez entrer la valeur maximum pour la vérification de la plage de température de l'air",
     "helpHumidityMin": "Veuillez entrer la valeur minimum pour la vérification de la plage d'humidité",
     "helpHumidityMax": "Veuillez entrer la valeur maximum pour la vérification de la plage d'humidité",
+    "helpTimeout": "Veuillez entrer la durée en heure ou une notification sera envoyée",
 
     "editValueText": "Entrez une valeur",
-    "editValueError": "Mauvaise valeur"
+    "editValueError": "Mauvaise valeur",
+
+    "unitHours": "{hours} heures"
 }
