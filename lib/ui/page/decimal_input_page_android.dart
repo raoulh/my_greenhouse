@@ -41,7 +41,6 @@ class _DecimalInputModalAndroidState extends State<DecimalInputModalAndroid> {
     }
 
     num val;
-
     if (_hasDecimals) {
       val = widget.currentValue;
     } else {

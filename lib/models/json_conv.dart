@@ -14,8 +14,10 @@ class JsonConv {
       return DateTime.now();
     }
     if (data is String) {
-      if (data.contains(".")) {
-        //data = data.substring(0, data.length - 1);
+      final exp = RegExp(r'(\+\d{4})');
+      if (!data.endsWith('Z') && !exp.hasMatch(data)) {
+        //force UTC if not set
+        data += 'Z';
       }
 
       return DateTime.parse(data);

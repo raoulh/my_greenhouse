@@ -307,7 +307,8 @@ class _LineChartState extends State<LineChartWidget> {
 
                             //format datetime
                             var dt = DateTime.fromMillisecondsSinceEpoch(
-                                touchedSpot.x.toInt());
+                                    touchedSpot.x.toInt())
+                                .toLocal();
                             String fmt =
                                 '${DateFormat(DateFormat.ABBR_MONTH_DAY, Intl.getCurrentLocale()).format(dt)} ${DateFormat(DateFormat.HOUR24_MINUTE, Intl.getCurrentLocale()).format(dt)}';
 
