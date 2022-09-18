@@ -40,6 +40,7 @@ class ProdUnit {
   ProdUnit({
     required this.productUnitId,
     required this.productUnitType,
+    required this.productUnitRef,
     required this.ph,
     required this.waterTemp,
     required this.airTemp,
@@ -48,6 +49,7 @@ class ProdUnit {
 
   int productUnitId;
   String productUnitType;
+  String productUnitRef;
   ProdMeas ph;
   ProdMeas waterTemp;
   ProdMeas airTemp;
@@ -57,6 +59,7 @@ class ProdUnit {
     return ProdUnit(
       productUnitId: json["product_unit_id"],
       productUnitType: json["production_unit_type"],
+      productUnitRef: json["production_unit_ref"] ?? "",
       ph: ProdMeas.fromJson(json['ph']),
       waterTemp: ProdMeas.fromJson(json['watertemp']),
       airTemp: ProdMeas.fromJson(json['airtemp']),

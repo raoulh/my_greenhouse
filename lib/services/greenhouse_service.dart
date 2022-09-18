@@ -7,6 +7,7 @@ import 'package:my_greenhouse/models/demo_data_loader.dart';
 import 'package:my_greenhouse/models/greenhouse_response.dart';
 import 'package:my_greenhouse/models/prefs.dart';
 import 'package:my_greenhouse/services/auth_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:my_greenhouse/services/failure.dart';
@@ -25,8 +26,61 @@ enum NotifType {
   }
 }
 
+class ProdUnitItem {
+  final int prodId;
+  final String name;
+  final int index;
+  final String prodRef;
+
+  ProdUnitItem({
+    required this.prodId,
+    required this.name,
+    required this.index,
+    required this.prodRef,
+  });
+}
+
 class GreenhouseService with ChangeNotifier {
-  Future<GreenhouseResponse> getCurrentData() async {
+  static const String _kCurrentProd = "current_prod_id";
+
+  late final SharedPreferences _sharedPref;
+
+  GreenhouseService() {
+    initSharedPref();
+  }
+
+  void initSharedPref() async {
+    _sharedPref = await SharedPreferences.getInstance();
+  }
+
+  int _currentProdUnitIndex = -1;
+  int get currentProdUnitIndex {
+    if (_currentProdUnitIndex >= 0) {
+      return _currentProdUnitIndex;
+    }
+
+    var val = _sharedPref.getInt(_kCurrentProd);
+    if (val == null) {
+      _currentProdUnitIndex = 0;
+      _sharedPref.setInt(_kCurrentProd, _currentProdUnitIndex);
+    } else {
+      _currentProdUnitIndex = val;
+    }
+    return _currentProdUnitIndex;
+  }
+
+  set currentProdUnitIndex(int current) {
+    _currentProdUnitIndex = current;
+    _sharedPref.setInt(_kCurrentProd, _currentProdUnitIndex);
+    notifyListeners();
+  }
+
+  bool _hasMultiProdUnit = false;
+  bool get hasMultiProdUnit => _hasMultiProdUnit;
+
+  List<ProdUnitItem> prodUnits = [];
+
+  Future<GreenhouseResponse> getCurrentData(bool notify) async {
     final url = '${Environment.apiUrl}/data/full';
     var tokenAuth = 'Bearer ';
     final token = await AuthService.getToken();
@@ -52,7 +106,41 @@ class GreenhouseService with ChangeNotifier {
         throw Failure('Failure to connect to server');
       }
 
-      return greenhouseResponseFromJson(res.body);
+      var data = greenhouseResponseFromJson(res.body);
+      if (data.meas.length > 1) {
+        _hasMultiProdUnit = true;
+      } else {
+        _hasMultiProdUnit = false;
+      }
+
+      //---Test data for multi produnits
+      if (data.meas.length > 1 && data.meas[0].productUnitId == 3) {
+        data.meas[0].ph = ProdMeas(
+            currentValue: 6.3, hourAverageValue: 6.3, dayAverageValue: 6.3);
+      }
+      if (data.meas.length > 1 && data.meas[1].productUnitId == 568) {
+        data.meas[1].ph = ProdMeas(
+            currentValue: 7.1, hourAverageValue: 7.2, dayAverageValue: 7.3);
+      }
+      //---Test
+
+      prodUnits.clear();
+      prodUnits = data.meas
+          .asMap()
+          .entries
+          .map((e) => ProdUnitItem(
+                prodId: e.value.productUnitId,
+                name: e.value.productUnitType,
+                index: e.key,
+                prodRef: e.value.productUnitRef,
+              ))
+          .toList();
+
+      if (notify) {
+        notifyListeners();
+      }
+
+      return data;
     } on SocketException {
       throw Failure('Failure to connect to server');
     } on HttpException {
@@ -89,7 +177,15 @@ class GreenhouseService with ChangeNotifier {
         return throw Failure('Failure to connect to server');
       }
 
-      return greenhouseResponseFromJson(res.body);
+      var data = greenhouseResponseFromJson(res.body);
+      if (data.meas.length > 1) {
+        _hasMultiProdUnit = true;
+      } else {
+        _hasMultiProdUnit = false;
+      }
+      notifyListeners();
+
+      return data;
     } on SocketException {
       return throw Failure('Failure to connect to server');
     } on HttpException {

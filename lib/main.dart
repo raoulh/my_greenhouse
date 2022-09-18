@@ -37,6 +37,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   late LifeCycleService lifeCycleService;
   late NotifHandler notifHandler;
+  late GreenhouseService greenhouseService;
 
   @override
   void initState() {
@@ -44,6 +45,7 @@ class _MyAppState extends State<MyApp> {
     notifHandler = NotifHandler();
     lifeCycleService = LifeCycleService();
     WidgetsBinding.instance.addObserver(lifeCycleService);
+    greenhouseService = GreenhouseService();
   }
 
   @override
@@ -58,7 +60,7 @@ class _MyAppState extends State<MyApp> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthService()),
-        ChangeNotifierProvider(create: (_) => GreenhouseService()),
+        ChangeNotifierProvider(create: (_) => greenhouseService),
         ChangeNotifierProvider(create: (_) => MyfoodService()),
         ChangeNotifierProvider(create: (_) => lifeCycleService),
         ChangeNotifierProvider(create: (_) => ConnectivityProvider()),

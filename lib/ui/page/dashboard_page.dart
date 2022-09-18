@@ -49,7 +49,11 @@ class _DashboardPageState extends State<DashboardPage> {
     mfService = Provider.of<MyfoodService>(context, listen: false);
     lifecycleService = Provider.of<LifeCycleService>(context, listen: false);
 
-    _loadInitialData();
+    _loadInitialData(true);
+
+    grService.addListener(() {
+      _loadInitialData(false);
+    });
 
     //reload when app is resumed
     lifecycleService.addResumeObserver(_refreshData);
@@ -57,16 +61,20 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   void dispose() {
-    lifecycleService.removeResumeObserver(_loadInitialData);
+    lifecycleService.removeResumeObserver(() {
+      _loadInitialData(true);
+    });
     super.dispose();
   }
 
-  Future<void> _loadInitialData() async {
+  Future<void> _loadInitialData(bool notify) async {
     print("_loadInitialData");
+
+    currentProdUnit = grService.currentProdUnitIndex;
 
     try {
       resetZoom = false;
-      resultData = await grService.getCurrentData();
+      resultData = await grService.getCurrentData(notify);
       setState(() {});
 
       if (currentProdUnit >= resultData.meas.length) {
@@ -93,7 +101,7 @@ class _DashboardPageState extends State<DashboardPage> {
               buttonText: AppLocalizations.of(context).tryAgain,
               buttonFn: () {
                 Navigator.pop(context);
-                _loadInitialData();
+                _loadInitialData(true);
               },
             );
           });
@@ -101,6 +109,8 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Future<bool> _refreshData() async {
+    currentProdUnit = grService.currentProdUnitIndex;
+
     try {
       setState(() {
         resetZoom = true;
@@ -148,6 +158,15 @@ class _DashboardPageState extends State<DashboardPage> {
 
   String _appBarTitle() {
     if (currentProdUnit < resultData.meas.length) {
+      if (resultData.meas.length > 1) {
+        String id = resultData.meas[currentProdUnit].productUnitRef;
+        if (id == "") {
+          id = resultData.meas[currentProdUnit].productUnitId.toString();
+        }
+
+        return "${resultData.meas[currentProdUnit].productUnitType} - $id";
+      }
+
       return resultData.meas[currentProdUnit].productUnitType;
     }
     return "N/A";
