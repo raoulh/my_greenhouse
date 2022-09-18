@@ -59,12 +59,14 @@ class _MainAppBarState extends State<MainAppBar> {
       centerTitle: true,
       title: Row(
         mainAxisAlignment:
-            Provider.of<GreenhouseService>(context).hasMultiProdUnit
+            Provider.of<GreenhouseService>(context).hasMultiProdUnit &&
+                    widget.showSettings
                 ? MainAxisAlignment.start
                 : MainAxisAlignment.center,
         children: [
           Visibility(
-            visible: Provider.of<GreenhouseService>(context).hasMultiProdUnit,
+            visible: Provider.of<GreenhouseService>(context).hasMultiProdUnit &&
+                widget.showSettings,
             child: CupertinoButton(
               child: const Icon(
                 CupertinoIcons.chevron_up_chevron_down,
