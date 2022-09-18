@@ -6,7 +6,7 @@ class Environment {
   static String apiUrl = 'https://greenhouse.raoulh.pw/api';
   static String mfApiUrl = 'https://hub.myfood.eu/api/v1';
 
-  static notifUrl(NotifType type) {
+  static notifUrl(NotifType type, {int prodId = 0}) {
     var url = '${Environment.apiUrl}/notif';
     switch (type) {
       case NotifType.pH:
@@ -22,6 +22,10 @@ class Environment {
         url += "/humidity";
         break;
       default:
+    }
+
+    if (prodId > 0) {
+      url += "/$prodId";
     }
 
     return url;

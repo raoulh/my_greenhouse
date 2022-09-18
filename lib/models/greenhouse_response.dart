@@ -98,6 +98,7 @@ class NotifSettingsResponse {
     required this.tooFastEnabled,
     required this.timeEnabled,
     required this.timeMin,
+    required this.prodId,
   });
 
   final NotifType type;
@@ -107,6 +108,7 @@ class NotifSettingsResponse {
   bool tooFastEnabled;
   bool timeEnabled;
   Duration timeMin;
+  int prodId;
 
   String getUnit() {
     if (type == NotifType.pH) {
@@ -130,6 +132,7 @@ class NotifSettingsResponse {
         tooFastEnabled: false,
         timeEnabled: false,
         timeMin: const Duration(),
+        prodId: 0,
       );
 
   factory NotifSettingsResponse.fromJson(Map<String, dynamic> json) =>
@@ -141,6 +144,7 @@ class NotifSettingsResponse {
         tooFastEnabled: json["too_fast_enabled"],
         timeEnabled: json["time_enabled"],
         timeMin: JsonConv.toDuration(json["time_min"]),
+        prodId: json["product_unit_id"],
       );
 
   Map<String, dynamic> toJson() {
@@ -152,6 +156,7 @@ class NotifSettingsResponse {
       'too_fast_enabled': tooFastEnabled,
       'time_enabled': timeEnabled,
       'time_min': JsonConv.fromDuration(timeMin),
+      'product_unit_id': prodId,
     };
   }
 }

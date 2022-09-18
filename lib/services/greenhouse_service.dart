@@ -75,6 +75,15 @@ class GreenhouseService with ChangeNotifier {
     notifyListeners();
   }
 
+  int _currentProdUnitId = -1;
+  int get currentProdUnitId {
+    if (_currentProdUnitIndex < prodUnits.length &&
+        _currentProdUnitIndex >= 0) {
+      _currentProdUnitId = prodUnits[_currentProdUnitIndex].prodId;
+    }
+    return _currentProdUnitId;
+  }
+
   bool _hasMultiProdUnit = false;
   bool get hasMultiProdUnit => _hasMultiProdUnit;
 
@@ -185,7 +194,7 @@ class GreenhouseService with ChangeNotifier {
   }
 
   Future<NotifSettingsResponse> getNotifSettings(NotifType type) async {
-    final url = Environment.notifUrl(type);
+    final url = Environment.notifUrl(type, prodId: currentProdUnitId);
     var tokenAuth = 'Bearer ';
     final token = await AuthService.getToken();
     final deviceId = await AppPrefs.getDeviceId();
