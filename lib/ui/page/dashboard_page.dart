@@ -158,15 +158,6 @@ class _DashboardPageState extends State<DashboardPage> {
 
   String _appBarTitle() {
     if (currentProdUnit < resultData.meas.length) {
-      if (resultData.meas.length > 1) {
-        String id = resultData.meas[currentProdUnit].productUnitRef;
-        if (id == "") {
-          id = resultData.meas[currentProdUnit].productUnitId.toString();
-        }
-
-        return "${resultData.meas[currentProdUnit].productUnitType} - $id";
-      }
-
       return resultData.meas[currentProdUnit].productUnitType;
     }
     return "N/A";

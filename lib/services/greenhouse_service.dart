@@ -113,17 +113,6 @@ class GreenhouseService with ChangeNotifier {
         _hasMultiProdUnit = false;
       }
 
-      //---Test data for multi produnits
-      if (data.meas.length > 1 && data.meas[0].productUnitId == 3) {
-        data.meas[0].ph = ProdMeas(
-            currentValue: 6.3, hourAverageValue: 6.3, dayAverageValue: 6.3);
-      }
-      if (data.meas.length > 1 && data.meas[1].productUnitId == 568) {
-        data.meas[1].ph = ProdMeas(
-            currentValue: 7.1, hourAverageValue: 7.2, dayAverageValue: 7.3);
-      }
-      //---Test
-
       prodUnits.clear();
       prodUnits = data.meas
           .asMap()
