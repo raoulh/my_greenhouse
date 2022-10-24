@@ -46,6 +46,7 @@ class _MyAppState extends State<MyApp> {
     lifeCycleService = LifeCycleService();
     WidgetsBinding.instance.addObserver(lifeCycleService);
     greenhouseService = GreenhouseService();
+    initLocale();
   }
 
   @override
@@ -53,6 +54,11 @@ class _MyAppState extends State<MyApp> {
     WidgetsBinding.instance.removeObserver(lifeCycleService);
     notifHandler.dispose();
     super.dispose();
+  }
+
+  void initLocale() async {
+    //await initializeDateFormatting("fr_FR", null);
+    //await initializeDateFormatting("en_US", null);
   }
 
   @override

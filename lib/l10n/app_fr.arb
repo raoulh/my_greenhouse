@@ -57,5 +57,8 @@
     "editValueText": "Entrez une valeur",
     "editValueError": "Mauvaise valeur",
 
-    "unitHours": "{hours} heures"
+    "unitHours": "{hours} heures",
+
+    "dateToday": "Aujourd'hui",
+    "dateYesterday": "Hier"
 }

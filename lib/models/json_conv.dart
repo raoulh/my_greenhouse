@@ -15,7 +15,7 @@ class JsonConv {
     }
     if (data is String) {
       final exp = RegExp(r'(\+\d{4})');
-      if (!data.endsWith('Z') && !exp.hasMatch(data)) {
+      if (!data.endsWith('Z') && !exp.hasMatch(data) && !data.contains('+')) {
         //force UTC if not set
         data += 'Z';
       }

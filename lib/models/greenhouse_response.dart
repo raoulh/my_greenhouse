@@ -73,16 +73,26 @@ class ProdMeas {
     required this.currentValue,
     required this.hourAverageValue,
     required this.dayAverageValue,
+    required this.currentTime,
   });
 
   final double currentValue;
   final double hourAverageValue;
   final double dayAverageValue;
+  final DateTime currentTime;
+
+  factory ProdMeas.empty() => ProdMeas(
+        currentValue: 0,
+        hourAverageValue: 0,
+        dayAverageValue: 0,
+        currentTime: DateTime(0),
+      );
 
   factory ProdMeas.fromJson(Map<String, dynamic> json) => ProdMeas(
         currentValue: JsonConv.toDouble(json["current_value"]),
         hourAverageValue: JsonConv.toDouble(json["hour_average_value"]),
         dayAverageValue: JsonConv.toDouble(json["day_average_value"]),
+        currentTime: JsonConv.toDateTime(json['current_time']),
       );
 }
 

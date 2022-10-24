@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:my_greenhouse/models/greenhouse_response.dart';
 import 'package:my_greenhouse/services/failure.dart';
 import 'package:my_greenhouse/services/greenhouse_service.dart';
@@ -167,28 +168,28 @@ class _DashboardPageState extends State<DashboardPage> {
     if (currentProdUnit < resultData.meas.length) {
       return resultData.meas[currentProdUnit].ph;
     }
-    return ProdMeas(currentValue: 0, hourAverageValue: 0, dayAverageValue: 0);
+    return ProdMeas.empty();
   }
 
   ProdMeas _waterTempData() {
     if (currentProdUnit < resultData.meas.length) {
       return resultData.meas[currentProdUnit].waterTemp;
     }
-    return ProdMeas(currentValue: 0, hourAverageValue: 0, dayAverageValue: 0);
+    return ProdMeas.empty();
   }
 
   ProdMeas _airTempData() {
     if (currentProdUnit < resultData.meas.length) {
       return resultData.meas[currentProdUnit].airTemp;
     }
-    return ProdMeas(currentValue: 0, hourAverageValue: 0, dayAverageValue: 0);
+    return ProdMeas.empty();
   }
 
   ProdMeas _humidityData() {
     if (currentProdUnit < resultData.meas.length) {
       return resultData.meas[currentProdUnit].humidity;
     }
-    return ProdMeas(currentValue: 0, hourAverageValue: 0, dayAverageValue: 0);
+    return ProdMeas.empty();
   }
 
   ProdUnit? _selectedProdUnit() {
@@ -356,6 +357,28 @@ class _SumarySection extends StatelessWidget {
     return "assets/family.png";
   }
 
+  String _currentDate(BuildContext context) {
+    if (resultData != null && resultData?.ph.currentTime != null) {
+      var now = DateTime.now();
+      var dt = resultData!.ph.currentTime.toLocal();
+
+      var time = DateFormat.Hm().format(dt);
+      var date = DateFormat('dd/MM/yyyy').format(dt);
+
+      if (now.day == dt.day && now.month == dt.month && now.year == dt.year) {
+        //last measure was today
+        return "${AppLocalizations.of(context).dateToday} $time";
+      } else if (now.day == dt.day + 1 &&
+          now.month == dt.month &&
+          now.year == dt.year) {
+        return "${AppLocalizations.of(context).dateYesterday} $time";
+      }
+
+      return "$date $time";
+    }
+    return "";
+  }
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -372,6 +395,15 @@ class _SumarySection extends StatelessWidget {
                     fontSize: 40,
                     fontWeight: FontWeight.w600,
                     color: const Color(0xff046e0b),
+                  ),
+                ),
+                Text(
+                  _currentDate(context),
+                  style: GoogleFonts.montserrat(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w200,
+                    color: const Color.fromARGB(255, 54, 80, 87),
+                    fontStyle: FontStyle.italic,
                   ),
                 ),
                 const SizedBox(height: 30),

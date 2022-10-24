@@ -8,7 +8,7 @@ class ConnectivityProvider with ChangeNotifier {
   ConnectivityProvider() {
     Connectivity conn = Connectivity();
 
-    conn.onConnectivityChanged.listen((event) async {
+    conn.onConnectivityChanged.listen((ConnectivityResult event) async {
       if (event == ConnectivityResult.none) {
         _isOnline = false;
         notifyListeners();
